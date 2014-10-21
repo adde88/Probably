@@ -9,8 +9,6 @@ end)
 -- SPEC ID 251
 ProbablyEngine.rotation.register(251, {
 
-  { "#Potion of Mogu Power", "modifier.cooldowns", 'player' },
-  
   -- Blood Tap
   {{
     { "Blood Tap", "player.runes(unholy).count = 0" },

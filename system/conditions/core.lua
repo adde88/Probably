@@ -712,7 +712,7 @@ ProbablyEngine.condition.register("range", function(target)
 end)
 
 ProbablyEngine.condition.register("distance", function(target)
-    if FireHack then
+    if Distance then
         return math.floor(Distance(target, 'player'))
     else -- fall back to libRangeCheck
         local minRange, maxRange = rangeCheck:GetRange(target)
@@ -808,13 +808,15 @@ ProbablyEngine.condition.register("falling", function()
 end)
 
 ProbablyEngine.condition.register("timeout", function(args)
-    local time, spell = strsplit(",", args, 2)
-    print(time, spell)
-    if ProbablyEngine.timeout.check(spell) then
-        return false
+    local name, time = strsplit(",", args, 2)
+    if tonumber(time) then
+        if ProbablyEngine.timeout.check(name) then
+            return false
+        end
+        ProbablyEngine.timeout.set(name, tonumber(time))
+        return true
     end
-    ProbablyEngine.timeout.set(spell, tonumber(time), function()print('done')end)
-    return true
+    return false
 end)
 
 local heroismBuffs = { 32182, 90355, 80353, 2825, 146555 }
