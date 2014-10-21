@@ -894,5 +894,13 @@ ProbablyEngine.condition.register("vengeance", function(unit, spell)
 end)
 
 ProbablyEngine.condition.register("ilevel", function(unit, _)
-    return math.floor(GetAverageItemLevel())
+    return math.floor(select(1,GetAverageItemLevel()))
+end)
+
+ProbablyEngine.condition.register("firehack", function(unit, _)
+    return FireHack or false
+end)
+
+ProbablyEngine.condition.register("offspring", function(unit, _)
+    return type(opos) == 'function' or false
 end)
