@@ -4,7 +4,7 @@
 ProbablyEngine = {
   addonName = "Probably",
   addonColor = "EE2200",
-  version = "6.0.2r4"
+  version = "6.0.2r5"
 }
 DiesalLibs = true
 
