@@ -1,24 +1,6 @@
 -- ProbablyEngine Rotations - https://probablyengine.com/
 -- Released under modified BSD, see attached LICENSE.
 
-local function resolveGround(spell, target)
-  if FireHack then
-    if UnitExists(target) then
-      CastSpellByName(spell)
-      CastAtPosition(ObjectPosition(target))
-      return
-    end
-  end
-  -- fall back to mouse
-  local stickyValue = GetCVar("deselectOnClick")
-  SetCVar("deselectOnClick", "0")
-  CameraOrSelectOrMoveStart(1) -- this is unlocked
-  CastSpellByName(spell)
-  CameraOrSelectOrMoveStop(1) -- this isn't unlocked
-  SetCVar("deselectOnClick", "1")
-  SetCVar("deselectOnClick", stickyValue)
-end
-
 local GetSpellInfo = GetSpellInfo
 
 ProbablyEngine.current_spell = false
@@ -69,18 +51,18 @@ ProbablyEngine.cycle = function(skip_verify)
       ProbablyEngine.current_spell = name
 
       if target == "ground" then
-        resolveGround(name, 'target')
+        CastGround(name, 'target')
       elseif string.sub(target, -7) == ".ground" then
         target = string.sub(target, 0, -8)
-        resolveGround(name, target)
+        CastGround(name, target)
       else
         if spellID == 110309 then
-          RunMacroText("/target " .. target)
+          Macro("/target " .. target)
           target = "target"
         end
-        CastSpellByName(name, target or "target")
+        Cast(name, target or "target")
         if spellID == 110309 then
-          RunMacroText("/targetlasttarget")
+          Macro("/targetlasttarget")
         end
         if icon then
           ProbablyEngine.actionLog.insert('Spell Cast', name, icon, target or "target")
@@ -131,18 +113,18 @@ ProbablyEngine.ooc_cycle = function()
       ProbablyEngine.current_spell = name
 
       if target == "ground" then
-        resolveGround(name, 'target')
+        CastGround(name, 'target')
       elseif string.sub(target, -7) == ".ground" then
         target = string.sub(target, 0, -8)
-        resolveGround(name, target)
+        CastGround(name, target)
       else
         if spellID == 110309 then
-          RunMacroText("/target " .. target)
+          Macro("/target " .. target)
           target = "target"
         end
-        CastSpellByName(name, target)
+        Cast(name, target)
         if spellID == 110309 then
-          RunMacroText("/targetlasttarget")
+          Macro("/targetlasttarget")
         end
         if icon then
           ProbablyEngine.actionLog.insert('Spell Cast', name, icon, target)

@@ -3,9 +3,6 @@
 
 ProbablyEngine.listener.register("PLAYER_LOGIN", function(...)
   ProbablyEngine.print('Initializing!')
-  if FireHack then
-  	ProbablyEngine.print('FireHack Detected!')
-  end
   ProbablyEngine.rotation.auto_unregister()
   ProbablyEngine.listener.trigger("PLAYER_SPECIALIZATION_CHANGED", "player")
   ProbablyEngine.interface.init()

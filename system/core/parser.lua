@@ -43,7 +43,7 @@ ProbablyEngine.turbo = {
   modifier = ProbablyEngine.config.read('turbo_modifier', 1.3)
 }
 
-local losFlags =  bit.bor(0x10, 0x100)
+
 
 ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
   local turbo = ProbablyEngine.config.read('pe_turbo', false)
@@ -74,10 +74,9 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
     if string.sub(unit, -7) == ".ground" then unit = nil end
   end
 
-  if unit ~= "player" and UnitExists(unit) and UnitIsVisible(unit) and FireHack then
-    local px, py, pz = ObjectPosition("player")
-    local ux, uy, uz = ObjectPosition(unit)
-    if TraceLine(px, py, pz+2.25, ux, uy, uz+2.25, losFlags) then
+  if unit ~= "player" and UnitExists(unit) and UnitIsVisible(unit) and LineOfSight then
+    if not LineOfSight('player', unit) then
+      ProbablyEngine.print('Not in LoS!')
       return false
     end
   end
@@ -321,7 +320,7 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
         local tableNestSpell, tableNestTarget = ProbablyEngine.parser.table(event, target)
         if tableNestSpell ~= false then return tableNestSpell, tableNestTarget end
       elseif eventType == "macro" then
-        RunMacroText(event)
+        Macro(event)
         return false
       elseif eventType == "item" then
         if stopCasting then SpellStopCasting() end
@@ -332,7 +331,7 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
         if stopCasting then SpellStopCasting() end
         if not ProbablyEngine.timeout.check(itemName) then
           ProbablyEngine.timeout.set(itemName, 0.15, function()
-            UseItemByName(itemName, target)
+            UseItem(itemName, target)
           end)
         end
         ProbablyEngine.actionLog.insert('Use Bag Item', itemName, itemTexture, target)

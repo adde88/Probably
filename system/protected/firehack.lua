@@ -2,8 +2,9 @@
 -- Released under modified BSD, see attached LICENSE.
 
 -- Functions that require FireHack
-
 if FireHack then
+
+    ProbablyEngine.pmethod = "FireHack"
 
     function IterateObjects(callback, ...)
         local totalObjects = ObjectCount()
@@ -70,5 +71,27 @@ if FireHack then
             end
         end
     end
+
+    local losFlags =  bit.bor(0x10, 0x100)
+    function LineOfSight(a, b)
+        local ax, ay, az = ObjectPosition(a)
+        local bx, by, bz = ObjectPosition(b)
+        if TraceLine(ax, ay, az+2.25, bx, by, bz+2.25, losFlags) then
+            return false
+        end
+        return true
+    end
+
+    local CastGroundOld = CastGround
+    function CastGround(spell, target)
+        if UnitExists(target) then
+          CastSpellByName(spell)
+          CastAtPosition(ObjectPosition(target))
+          return
+        end
+        CastGroundOld(spell, target) -- try the old one ?
+    end
+
+    ProbablyEngine.print('Detected ' .. ProbablyEngine.pmethod .. "!")
 
 end

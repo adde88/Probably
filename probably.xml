@@ -45,6 +45,7 @@
   <!-- Protected -->
   <Script file="system\protected\base.lua" />
   <Script file="system\protected\firehack.lua" />
+  <Script file="system\protected\offspring.lua" />
 
   <!-- Conditions -->
   <Script file="system\conditions\core.lua" />
@@ -81,6 +82,7 @@
   <Script file="system\listeners\addon_loaded.lua" />
   <Script file="system\listeners\player_specialization_changed.lua" />
   <Script file="system\listeners\player_login.lua" />
+  <Script file="system\listeners\player_moving.lua" />
   <Script file="system\listeners\spells_changed.lua" />
   <Script file="system\listeners\combat_log_event_unfiltered.lua" />
   <Script file="system\listeners\group_roster_update.lua" />
