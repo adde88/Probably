@@ -36,7 +36,7 @@ if FireHack then
         return 0
     end
 
-    function UnitsAroundUnit(unit, distance)
+    function UnitsAroundUnit(unit, distance, checkCombat)
         if UnitExists(unit) then
             local total = 0
             local totalObjects = ObjectCount()
@@ -45,7 +45,7 @@ if FireHack then
                 if bit.band(ObjectType(object), ObjectTypes.Unit) > 0 then
                     local reaction = UnitReaction("player", object)
                     local combat = UnitAffectingCombat(object)
-                    if reaction and reaction <= 4 and combat then
+                    if reaction and reaction <= 4 and (checkCombat or combat) then
                         if Distance(object, unit) <= distance then
                             total = total + 1
                         end
