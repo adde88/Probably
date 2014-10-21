@@ -357,6 +357,20 @@ ProbablyEngine.condition.register("moving", function(target)
     return speed ~= 0
 end)
 
+ProbablyEngine.condition.register("lastmoved", function(target)
+    if not ProbablyEngine.module.player.moving then
+        return GetTime() - ProbablyEngine.module.player.movingTime
+    end
+    return false
+end)
+
+ProbablyEngine.condition.register("movingfor", function(target)
+    if ProbablyEngine.module.player.moving then
+        return GetTime() - ProbablyEngine.module.player.movingTime
+    end
+    return false
+end)
+
 -- DK Power
 
 ProbablyEngine.condition.register("runicpower", function(target, spell)
@@ -877,4 +891,8 @@ ProbablyEngine.condition.register("vengeance", function(unit, spell)
     end
 
     return vengeance / UnitHealthMax("player") * 100
+end)
+
+ProbablyEngine.condition.register("ilevel", function(unit, _)
+    return math.floor(GetAverageItemLevel())
 end)
