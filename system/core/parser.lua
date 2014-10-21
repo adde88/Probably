@@ -76,7 +76,6 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
 
   if unit ~= "player" and UnitExists(unit) and UnitIsVisible(unit) and LineOfSight then
     if not LineOfSight('player', unit) then
-      ProbablyEngine.print('Not in LoS!')
       return false
     end
   end
