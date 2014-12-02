@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 local GetTime = GetTime
@@ -16,7 +16,7 @@ local stringGmatch = string.gmatch
 local ProbablyEngineTempTable1 = { }
 local rangeCheck = LibStub("LibRangeCheck-2.0")
 local LibDispellable = LibStub("LibDispellable-1.0")
-local LibBoss = LibStub("LibBoss-1.0")
+local LibBoss = LibStub("LibBossIDs-1.0")
 
 local UnitBuff = function(target, spell, owner)
     local buff, count, caster, expires, spellID
@@ -127,6 +127,95 @@ ProbablyEngine.condition.register("buff.duration", function(target, spell)
     return 0
 end)
 
+
+--[[
+ProbablyEngine.condition.register("aura.", function(target, spell)
+    local guid = UnitGUID(target)
+    if guid then
+        local unit = ProbablyEngine.module.tracker.units[guid]
+        if unit then
+            local aura = unit.auras[GetSpellID(spell)]
+            local track = false
+            if aura['damage'] and not aura['heal'] then
+                track = aura['damage']
+            elseif aura['heal'] and not aura['damage'] then
+                track = aura['heal']
+            end
+            if track then
+                return track.
+            end
+        end
+    end
+    return false
+end)
+]]
+
+local function smartQueryTracker(target, spell, key)
+    local guid = UnitGUID(target)
+    if guid then
+        local unit = ProbablyEngine.module.tracker.units[guid]
+        if unit then
+            local aura = unit.auras[GetSpellID(spell)]
+            if aura then
+                local track = false
+                if key == 'stacks' or key == 'time' then
+                    track = aura
+                else
+                    if aura['damage'] and not aura['heal'] then
+                        track = aura['damage']
+                    elseif aura['heal'] and not aura['damage'] then
+                        track = aura['heal']
+                    end
+                end
+                if track then
+                    return track[key]
+                end
+            end
+        end
+    end
+    return false
+end
+
+ProbablyEngine.condition.register("aura.crit", function(target, spell)
+    return smartQueryTracker(target, spell, 'crit')
+end)
+
+ProbablyEngine.condition.register("aura.crits", function(target, spell)
+    return smartQueryTracker(target, spell, 'crits')
+end)
+
+ProbablyEngine.condition.register("aura.avg", function(target, spell)
+    return smartQueryTracker(target, spell, 'avg')
+end)
+
+ProbablyEngine.condition.register("aura.last", function(target, spell)
+    return smartQueryTracker(target, spell, 'last')
+end)
+
+ProbablyEngine.condition.register("aura.low", function(target, spell)
+    return smartQueryTracker(target, spell, 'low')
+end)
+
+ProbablyEngine.condition.register("aura.high", function(target, spell)
+    return smartQueryTracker(target, spell, 'high')
+end)
+
+ProbablyEngine.condition.register("aura.total", function(target, spell)
+    return smartQueryTracker(target, spell, 'total')
+end)
+
+ProbablyEngine.condition.register("aura.stacks", function(target, spell)
+    return smartQueryTracker(target, spell, 'stacks')
+end)
+
+ProbablyEngine.condition.register("aura.time", function(target, spell)
+    return smartQueryTracker(target, spell, 'time')
+end)
+
+ProbablyEngine.condition.register("aura.uptime", function(target, spell)
+    return smartQueryTracker(target, spell, 'time') - GetTime()
+end)
+
 ProbablyEngine.condition.register("stance", function(target, spell)
     return GetShapeshiftForm()
 end)
@@ -187,10 +276,16 @@ ProbablyEngine.condition.register("soulshards", function(target, spell)
 end)
 
 ProbablyEngine.condition.register("behind", function(target, spell)
+    if FireHack or oexecute then
+        return not UnitInfront(target)
+    end
     return ProbablyEngine.module.player.behind
 end)
 
 ProbablyEngine.condition.register("infront", function(target, spell)
+    if FireHack or oexecute then
+        return UnitInfront(target)
+    end
     return ProbablyEngine.module.player.infront
 end)
 
@@ -221,11 +316,12 @@ ProbablyEngine.condition.register("target", function(target, spell)
     return ( UnitGUID(target .. "target") == UnitGUID(spell) )
 end)
 
+--[[
 ProbablyEngine.condition.register("player", function(target, spell)
     return UnitName('player') == UnitName(target)
-end)
+end)--]]
 
-ProbablyEngine.condition.register("isPlayer", function (target)
+ProbablyEngine.condition.register("player", function (target)
     return UnitIsPlayer(target)
 end)
 
@@ -293,7 +389,7 @@ ProbablyEngine.condition.register('boss', function (target, spell)
     if spell == 'true' and (classification == 'rareelite' or classification == 'rare') then
     return true
     end
-    if classification == 'worldboss' or LibBoss[UnitId(target)] then
+    if classification == 'worldboss' or LibBoss.BossIDs[tonumber(UnitID(target))] then
     return true
     end
     return false
@@ -357,18 +453,71 @@ ProbablyEngine.condition.register("moving", function(target)
     return speed ~= 0
 end)
 
+
+local movingCache = { }
+
 ProbablyEngine.condition.register("lastmoved", function(target)
-    if not ProbablyEngine.module.player.moving then
-        return GetTime() - ProbablyEngine.module.player.movingTime
+    if target == 'player' then
+        if not ProbablyEngine.module.player.moving then
+            return GetTime() - ProbablyEngine.module.player.movingTime
+        end
+        return false
+    else
+        if UnitExists(target) then
+            local guid = UnitGUID(target)
+            if movingCache[guid] then
+                local moving = (GetUnitSpeed(target) > 0)
+                if not movingCache[guid].moving and moving then
+                    movingCache[guid].last = GetTime()
+                    movingCache[guid].moving = true
+                    return false
+                elseif moving then
+                    return false
+                elseif not moving then
+                    movingCache[guid].moving = false
+                    return GetTime() - movingCache[guid].last
+                end
+            else
+                movingCache[guid] = { }
+                movingCache[guid].last = GetTime()
+                movingCache[guid].moving = (GetUnitSpeed(target) > 0)
+                return false
+            end
+        end
+        return false
     end
-    return false
 end)
 
 ProbablyEngine.condition.register("movingfor", function(target)
-    if ProbablyEngine.module.player.moving then
-        return GetTime() - ProbablyEngine.module.player.movingTime
+    if target == 'player' then
+        if ProbablyEngine.module.player.moving then
+            return GetTime() - ProbablyEngine.module.player.movingTime
+        end
+        return false
+    else
+        if UnitExists(target) then
+            local guid = UnitGUID(target)
+            if movingCache[guid] then
+                local moving = (GetUnitSpeed(target) > 0)
+                if not movingCache[guid].moving then
+                    movingCache[guid].last = GetTime()
+                    movingCache[guid].moving = (GetUnitSpeed(target) > 0)
+                    return false
+                elseif moving then
+                    return GetTime() - movingCache[guid].last
+                elseif not moving then
+                    movingCache[guid].moving = false
+                    return false
+                end
+            else
+                movingCache[guid] = { }
+                movingCache[guid].last = GetTime()
+                movingCache[guid].moving = (GetUnitSpeed(target) > 0)
+                return false
+            end
+        end
+        return false
     end
-    return false
 end)
 
 -- DK Power
@@ -529,10 +678,10 @@ end)
 
 ProbablyEngine.condition.register("totem", function(target, totem)
     for index = 1, 4 do
-    local _, totemName, startTime, duration = GetTotemInfo(index)
-    if totemName == GetSpellName(totem) then
-        return true
-    end
+        local _, totemName, startTime, duration = GetTotemInfo(index)
+        if totemName == GetSpellName(totem) then
+            return true
+        end
     end
     return false
 end)
@@ -548,9 +697,10 @@ ProbablyEngine.condition.register("totem.duration", function(target, totem)
 end)
 
 ProbablyEngine.condition.register("mushrooms", function ()
-    count = 0
+    local count = 0
     for slot = 1, 3 do
-    if GetTotemInfo(slot) then count = count + 1 end
+    if GetTotemInfo(slot) then
+        count = count + 1 end
     end
     return count
 end)
@@ -621,18 +771,6 @@ ProbablyEngine.condition.register('interruptsAt', function (target, spell)
     local secondsLeft, castLength = ProbablyEngine.condition['casting.delta'](target)
     if secondsLeft and 100 - (secondsLeft / castLength * 100) > stopAt then
         SpellStopCasting()
-        return true
-    end
-    end
-    return false
-end)
-
-ProbablyEngine.condition.register('interruptAt', function (target, spell)
-    if ProbablyEngine.condition['modifier.toggle']('interrupt') then
-    if UnitName('player') == UnitName(target) then return false end
-    local stopAt = tonumber(spell) or 95
-    local secondsLeft, castLength = ProbablyEngine.condition['casting.delta'](target)
-    if secondsLeft and 100 - (secondsLeft / castLength * 100) > stopAt then
         return true
     end
     end
@@ -743,19 +881,40 @@ ProbablyEngine.condition.register("combat", function(target, range)
 end)
 
 ProbablyEngine.condition.register("time", function(target, range)
-    return GetTime() - ProbablyEngine.module.player.combatTime
+    if ProbablyEngine.module.player.combatTime then
+        return GetTime() - ProbablyEngine.module.player.combatTime
+    end
+    return false
 end)
 
+
+local deathTrack = { }
 ProbablyEngine.condition.register("deathin", function(target, range)
-    --local guid = UnitGUID(target)
-    --local name = GetUnitName(target)
-    --if name == "Training Dummy" or name == "Raider's Training Dummy" then
-    --return 99
-    --end
-    --if ProbablyEngine.module.combatTracker.enemy[guid] then
-    --return ProbablyEngine.module.combatTracker.enemy[guid]['ttd'] or 0
-    --end
-    return 0
+    local guid = UnitGUID(target)
+    if deathTrack[target] and deathTrack[target].guid == guid then
+        local start = deathTrack[target].time
+        local currentHP = UnitHealth(target)
+        local maxHP = deathTrack[target].start
+        local diff = maxHP - currentHP
+        local dura = GetTime() - start
+        local hpps = diff / dura
+        local death = currentHP / hpps
+        if death == math.huge then
+            return 8675309
+        elseif death < 0 then
+            return 0
+        else
+            return death
+        end
+    elseif deathTrack[target] then
+        table.empty(deathTrack[target])
+    else
+        deathTrack[target] = { }
+    end
+    deathTrack[target].guid = guid
+    deathTrack[target].time = GetTime()
+    deathTrack[target].start = UnitHealth(target)
+    return 8675309
 end)
 
 ProbablyEngine.condition.register("ttd", function(target, range)
@@ -860,20 +1019,40 @@ ProbablyEngine.condition.register("buffs.attackspeed", function(unit, _)
     return (GetRaidBuffTrayAuraInfo(4) ~= nil)
 end)
 
+ProbablyEngine.condition.register("buffs.haste", function(unit, _)
+    return (GetRaidBuffTrayAuraInfo(4) ~= nil)
+end)
+
 ProbablyEngine.condition.register("buffs.spellpower", function(unit, _)
     return (GetRaidBuffTrayAuraInfo(5) ~= nil)
 end)
 
-ProbablyEngine.condition.register("buffs.spellhaste", function(unit, _)
+ProbablyEngine.condition.register("buffs.crit", function(unit, _)
+    return (GetRaidBuffTrayAuraInfo(6) ~= nil)
+end)
+ProbablyEngine.condition.register("buffs.critical", function(unit, _)
+    return (GetRaidBuffTrayAuraInfo(6) ~= nil)
+end)
+ProbablyEngine.condition.register("buffs.criticalstrike", function(unit, _)
     return (GetRaidBuffTrayAuraInfo(6) ~= nil)
 end)
 
-ProbablyEngine.condition.register("buffs.crit", function(unit, _)
+ProbablyEngine.condition.register("buffs.mastery", function(unit, _)
     return (GetRaidBuffTrayAuraInfo(7) ~= nil)
 end)
 
-ProbablyEngine.condition.register("buffs.mastery", function(unit, _)
+ProbablyEngine.condition.register("buffs.multistrike", function(unit, _)
     return (GetRaidBuffTrayAuraInfo(8) ~= nil)
+end)
+ProbablyEngine.condition.register("buffs.multi", function(unit, _)
+    return (GetRaidBuffTrayAuraInfo(8) ~= nil)
+end)
+
+ProbablyEngine.condition.register("buffs.vers", function(unit, _)
+    return (GetRaidBuffTrayAuraInfo(9) ~= nil)
+end)
+ProbablyEngine.condition.register("buffs.versatility", function(unit, _)
+    return (GetRaidBuffTrayAuraInfo(9) ~= nil)
 end)
 
 ProbablyEngine.condition.register("charmed", function(unit, _)
@@ -883,14 +1062,20 @@ end)
 ProbablyEngine.condition.register("vengeance", function(unit, spell)
     local vengeance = select(15, _G['UnitBuff']("player", GetSpellName(132365)))
     if not vengeance then
-    return 0
+        return 0
     end
-
     if spell then
-    return vengeance
+        return vengeance
     end
-
     return vengeance / UnitHealthMax("player") * 100
+end)
+
+ProbablyEngine.condition.register("area.enemies", function(unit, distance)
+    if UnitsAroundUnit then
+        local total = UnitsAroundUnit(unit, tonumber(distance))
+        return total
+    end
+    return 0
 end)
 
 ProbablyEngine.condition.register("ilevel", function(unit, _)

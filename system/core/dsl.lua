@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 ProbablyEngine.dsl = {
@@ -18,6 +18,8 @@ ProbablyEngine.dsl.getConditionalSpell = function(dsl, spell)
 end
 
 ProbablyEngine.dsl.comparator = function(condition, target, condition_spell)
+
+  if not condition then return false end
 
   local modify_not = false
 
@@ -140,49 +142,49 @@ ProbablyEngine.dsl.parse = function(dsl, spell)
     unitId = "!" .. ProbablyEngine.raid.lowestHP()
     ProbablyEngine.dsl.parsedTarget = unitId
   elseif unitId == "tank" then
-  if UnitExists("focus") then
-    unitId = "focus"
-    ProbablyEngine.dsl.parsedTarget = unitId
-  else
      local possibleTank = ProbablyEngine.raid.tank()
      if possibleTank then
        unitId = possibleTank
        ProbablyEngine.dsl.parsedTarget = unitId
      end
-  end
-  elseif unitId == "!tank" then
+  elseif unitId == "focus" then
     if UnitExists("focus") then
-      unitId = "!focus"
+      unitId = "focus"
       ProbablyEngine.dsl.parsedTarget = unitId
-    else
+	end
+  elseif unitId == "!tank" then
       local possibleTank = ProbablyEngine.raid.tank()
       if possibleTank then
         unitId =  "!" .. possibleTank
         ProbablyEngine.dsl.parsedTarget = unitId
       end
-    end
-  elseif unitId == "tanktarget" then
-    if UnitExists("focustarget") then
-      unitId = "focustarget"
+  elseif unitId == "!focus" then
+	if UnitExists("focus") then
+      unitId = "!focus"
       ProbablyEngine.dsl.parsedTarget = unitId
-    else
+	end
+  elseif unitId == "tanktarget" then
       local possibleTank = ProbablyEngine.raid.tank()
       if possibleTank then
         unitId = possibleTank .. "target"
         ProbablyEngine.dsl.parsedTarget = unitId
       end
+  elseif unitId == "focustarget" then
+    if UnitExists("focustarget") then
+      unitId = "focustarget"
+      ProbablyEngine.dsl.parsedTarget = unitId
     end
   elseif unitId == "!tanktarget" then
-    if UnitExists("focustarget") then
-      unitId = "!focustarget"
-      ProbablyEngine.dsl.parsedTarget = unitId
-    else
       local possibleTank = ProbablyEngine.raid.tank()
       if possibleTank then
         unitId =  "!" .. possibleTank .. "target"
         ProbablyEngine.dsl.parsedTarget = unitId
       end
-    end
+  elseif unitId == "!focustarget" then
+	if UnitExists("focustarget") then
+      unitId = "!focustarget"
+      ProbablyEngine.dsl.parsedTarget = unitId
+	end
   end
 
   if unitId then table.insert(parse_table, unitId) end

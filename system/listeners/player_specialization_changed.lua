@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 -- This shit fires all the time... wtf blizz, don't be stupid.

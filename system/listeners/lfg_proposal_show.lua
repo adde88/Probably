@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 ProbablyEngine.listener.register("LFG_PROPOSAL_SHOW", function()

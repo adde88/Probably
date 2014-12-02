@@ -1,11 +1,13 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 -- Functions that require OffSpring
 
-ProbablyEngine.timeout.set('offspring', 1, function()
+function ProbablyEngine.protected.OffSpring()
 
 	if oexecute then
+
+		ProbablyEngine.faceroll.rolling = false
 
 		ProbablyEngine.pmethod = "OffSpring"
 
@@ -39,14 +41,28 @@ ProbablyEngine.timeout.set('offspring', 1, function()
 			if a ~= 'player' then
 				ProbablyEngine.print('OffSpring does not support LoS from an arbitrary unit, only player.')
 			end
-			return olos(b) == 0
+			return olos(b) == false
 		end
 
 		function Macro(text)
 			oexecute("RunMacroText(\""..text.."\")")
 		end
 
-	    function Distance(a, b)
+	    function UnitInfront(unit)
+          	local aX, aY, aZ = opos(unit)
+    		local bX, bY, bZ = opos('player')
+    		local playerFacing = GetPlayerFacing()
+   	 		local facing = math.atan2(bY - aY, bX - aX) % 6.2831853071796
+   				return math.abs(math.deg(math.abs(playerFacing - (facing)))-180) < 90
+        end
+
+		function UnitsAroundUnit(unit, distance, checkCombat, unitReaction)
+			if unit ~= "player" and (checkCombat and UnitAffectingCombat(unit) or true) then
+				return ounits(distance, unit, unitReaction)
+			end
+		end
+
+		function Distance(a, b)
 	        if UnitExists(a) and UnitIsVisible(a) and UnitExists(b) and UnitIsVisible(b) then
 	            local ax, ay, az, ar = opos(a)
 	            local bx, by, bz, br = opos(b)
@@ -77,8 +93,11 @@ ProbablyEngine.timeout.set('offspring', 1, function()
 			end
 		end
 
-	    ProbablyEngine.print('Detected ' .. ProbablyEngine.pmethod .. "!")
+		ProbablyEngine.protected.unlocked = true
+		ProbablyEngine.protected.method = "offspring"
+		ProbablyEngine.timer.unregister('detectUnlock')
+	    ProbablyEngine.print('Detected OffSpring!')
 
 	end
 
-end)
+end

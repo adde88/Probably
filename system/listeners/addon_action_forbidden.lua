@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 ProbablyEngine.listener.register("ADDON_ACTION_FORBIDDEN", function(...)

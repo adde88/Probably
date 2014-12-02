@@ -1,12 +1,12 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 ProbablyEngine = {
   addonName = "Probably",
+  addonReal = "Probably",
   addonColor = "EE2200",
-  version = "6.0.2r5"
+  version = "6.0.3r11"
 }
-DiesalLibs = true
 
 function ProbablyEngine.print(message)
   print('|c00'..ProbablyEngine.addonColor..'['..ProbablyEngine.addonName..']|r ' .. message)

@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 local GetSpellBookIndex = GetSpellBookIndex
@@ -74,7 +74,7 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
     if string.sub(unit, -7) == ".ground" then unit = nil end
   end
 
-  if unit ~= "player" and UnitExists(unit) and UnitIsVisible(unit) and LineOfSight then
+  if unit and unit ~= "player" and UnitID(unit) ~= 76585 and UnitExists(unit) and UnitIsVisible(unit) and LineOfSight then
     if not LineOfSight('player', unit) then
       return false
     end
@@ -141,8 +141,14 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
   if UnitBuff("player", GetSpellInfo(11392)) then return false end -- Invis
   if UnitBuff("player", GetSpellInfo(3680)) then return false end  -- L. Invis
 
-  if spellBook ~= nil and select(2, GetSpellCooldown(spellIndex, spellBook)) > 0 then return false end
-  if spellBook == nil and select(2, GetSpellCooldown(spellId)) > 0 then return false end
+  if not ProbablyEngine.faceroll.rolling then
+    if spellBook ~= nil and select(2, GetSpellCooldown(spellIndex, spellBook)) > 0 then return false end
+    if spellBook == nil and select(2, GetSpellCooldown(spellId)) > 0 then return false end
+  else
+    if spellBook ~= nil and select(2, GetSpellCooldown(spellIndex, spellBook)) > 1.5 then return false end
+    if spellBook == nil and select(2, GetSpellCooldown(spellId)) > 1.5 then return false end
+  end
+
 
   if spellBook == BOOKTYPE_PET then
     if not UnitExists('pet') then return false end
@@ -158,9 +164,9 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
     return true
   end
 
-  if ProbablyEngine.module.player.casting == true and turbo == false then return false end
   -- handle Surging Mists manually :(
   if spellId == 116694 or spellId == 124682 or spellId == 123273 then return true end
+  if ProbablyEngine.module.player.casting == true and turbo == false then return false end
   if UnitChannelInfo("player") ~= nil then return false end
   return true
 end
@@ -241,11 +247,11 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
       target = ProbablyEngine.raid.lowestHP()
       if target == false then return end
     elseif target == "tank" then
-      if UnitExists("focus") then
+       target = ProbablyEngine.raid.tank()
+	elseif target == "focus" then
+	  if UnitExists("focus") then
         target = "focus"
-      else
-        target = ProbablyEngine.raid.tank()
-      end
+	  end
     end
 
     if eventType == "string" or eventType == "number" then

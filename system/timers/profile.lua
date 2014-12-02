@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 if ProbablyEngine.hardcore_debug == true then
@@ -6,8 +6,8 @@ if ProbablyEngine.hardcore_debug == true then
   ProbablyEngine.timer.register("profiling", function()
     UpdateAddOnCPUUsage()
     UpdateAddOnMemoryUsage()
-    ProbablyEngine.cpu = GetAddOnCPUUsage(ProbablyEngine.addonName)
-    ProbablyEngine.mem = GetAddOnMemoryUsage(ProbablyEngine.addonName)
+    ProbablyEngine.cpu = GetAddOnCPUUsage(ProbablyEngine.addonReal)
+    ProbablyEngine.mem = GetAddOnMemoryUsage(ProbablyEngine.addonReal)
     print(ProbablyEngine.cpu)
     print(ProbablyEngine.mem)
   end, 1000)

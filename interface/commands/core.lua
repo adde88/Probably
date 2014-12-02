@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 ProbablyEngine.command.help = {
@@ -13,6 +13,16 @@ ProbablyEngine.command.register_handler({'version', 'ver', 'v'}, function()
   ProbablyEngine.command.print('|cff' .. ProbablyEngine.addonColor .. 'ProbablyEngine |r' .. ProbablyEngine.version)
 end)
 ProbablyEngine.command.register_help('version', pelg('help_version'))
+
+ProbablyEngine.command.register_handler({'toggleui', 'ui'}, function()
+  ProbablyEngine.config.write('uishown', not ProbablyEngine.config.read('uishown'))
+  if ProbablyEngine.config.read('uishown') then
+    ProbablyEngine.buttons.buttonFrame:Show()
+  else
+    ProbablyEngine.buttons.buttonFrame:Hide()
+  end
+end)
+ProbablyEngine.command.register_help('toggleui', 'Toggles the visibility of the user interface.')
 
 ProbablyEngine.command.register_handler({'help', '?', 'wat'}, function()
   ProbablyEngine.command.print('|cff' .. ProbablyEngine.addonColor .. 'ProbablyEngine |r' .. ProbablyEngine.version)

@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 local BOOKTYPE_SPELL = BOOKTYPE_SPELL
@@ -101,9 +101,14 @@ function GetItemID(item)
 end
 
 function UnitID(target)
-  local guid = UnitGUID(target)
-  if guid then return tonumber(guid:sub(6, 10), 16) end
-  return false
+	local guid = UnitGUID(target)
+	if guid then
+		local type, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-", guid)
+
+		if type == "Player" then return tonumber(ServerID) end
+		if npc_id then return tonumber(npc_id) end
+	end
+	return false
 end
 UnitId = UnitID
 
@@ -126,4 +131,9 @@ end
 
 function table.empty(tbl)
   for i, _ in ipairs(tbl) do tbl[i] = nil end
+end
+
+function math.round(num, idp)
+  local mult = 10^(idp or 0)
+  return math.floor(num * mult + 0.5) / mult
 end

@@ -1,4 +1,4 @@
--- ProbablyEngine Rotations - https://probablyengine.com/
+-- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
 local GetSpellInfo = GetSpellInfo
@@ -7,17 +7,56 @@ ProbablyEngine.current_spell = false
 
 ProbablyEngine.cycleTime = ProbablyEngine.cycleTime or 50
 
+
+-- faceroll
+
+ProbablyEngine.faceroll.faceroll = function()
+  if ProbablyEngine.faceroll.rolling then
+    local spell, target
+    if ProbablyEngine.module.player.combat and ProbablyEngine.rotation.activeRotation then
+      spell, target = ProbablyEngine.parser.table(ProbablyEngine.rotation.activeRotation)
+    elseif not ProbablyEngine.module.player.combat and ProbablyEngine.rotation.activeOOCRotation then
+      spell, target = ProbablyEngine.parser.table(ProbablyEngine.rotation.activeOOCRotation, 'player')
+    end
+    
+    if spell then
+      local spellIndex, spellBook = GetSpellBookIndex(spell)
+      local spellID, name, icon
+      if spellBook ~= nil then
+        _, spellID = GetSpellBookItemInfo(spellIndex, spellBook)
+        name, _, icon, _, _, _, _, _, _ = GetSpellInfo(spellIndex, spellBook)
+      else
+        spellID = spellIndex
+        name, _, icon, _, _, _, _, _, _ = GetSpellInfo(spellID)
+      end
+      if UnitExists(target) or target == 'ground' or string.sub(target, -7) == ".ground" then
+        ProbablyEngine.buttons.icon('MasterToggle', icon)
+        ProbablyEngine.current_spell = name
+      else
+        ProbablyEngine.current_spell = false
+      end
+    else
+      ProbablyEngine.current_spell = false
+    end
+  end
+end
+
+ProbablyEngine.timer.register("faceroll", function()
+  ProbablyEngine.faceroll.faceroll()
+end, 50)
+
 ProbablyEngine.cycle = function(skip_verify)
 
   local turbo = ProbablyEngine.config.read('pe_turbo', false)
   local cycle =
-    IsMounted() == false
+    (UnitBuff('player', GetSpellName(165803)) or IsMounted() == false)
     and UnitInVehicle("player") == false
     and ProbablyEngine.module.player.combat
     and ProbablyEngine.config.read('button_states', 'MasterToggle', false)
     and ProbablyEngine.module.player.specID
+    and (ProbablyEngine.protected.unlocked or IsMacClient())
 
-  if cycle or skip_verify then
+  if cycle or skip_verify and ProbablyEngine.rotation.activeRotation then
     
     local spell, target = false
 
@@ -60,7 +99,14 @@ ProbablyEngine.cycle = function(skip_verify)
           Macro("/target " .. target)
           target = "target"
         end
-        Cast(name, target or "target")
+
+        -- some spells just won't cast normally, so we use macros
+        if spellID == 139139 then -- Insanity for spriests
+          Macro('/cast ' .. GetSpellName(15407))
+        else
+          Cast(name, target or "target")
+        end
+
         if spellID == 110309 then
           Macro("/targetlasttarget")
         end
@@ -86,14 +132,15 @@ end, ProbablyEngine.cycleTime)
 
 ProbablyEngine.ooc_cycle = function()
   local cycle =
-    IsMounted() == false
+    (UnitBuff('player', GetSpellName(165803)) or IsMounted() == false)
     and UnitInVehicle("player") == false
     and not ProbablyEngine.module.player.combat
     and ProbablyEngine.config.read('button_states', 'MasterToggle', false)
     and ProbablyEngine.module.player.specID ~= 0
     and ProbablyEngine.rotation.activeOOCRotation ~= false
+    and (ProbablyEngine.protected.unlocked or IsMacClient())
 
-  if cycle then
+  if cycle and ProbablyEngine.rotation.activeOOCRotation then
     local spell, target = ''
     spell, target = ProbablyEngine.parser.table(ProbablyEngine.rotation.activeOOCRotation, 'player')
 
@@ -147,3 +194,12 @@ end
 ProbablyEngine.timer.register("oocrotation", function()
   ProbablyEngine.ooc_cycle()
 end, ProbablyEngine.cycleTime)
+
+
+ProbablyEngine.timer.register("detectUnlock", function()
+  if ProbablyEngine.config.read('button_states', 'MasterToggle', false) then
+    ProbablyEngine.protected.FireHack()
+    ProbablyEngine.protected.OffSpring()
+    ProbablyEngine.protected.Generic()
+  end
+end, 1000)
