@@ -276,14 +276,14 @@ ProbablyEngine.condition.register("soulshards", function(target, spell)
 end)
 
 ProbablyEngine.condition.register("behind", function(target, spell)
-    if FireHack or oexecute then
+    if UnitInfront then
         return not UnitInfront(target)
     end
     return ProbablyEngine.module.player.behind
 end)
 
 ProbablyEngine.condition.register("infront", function(target, spell)
-    if FireHack or oexecute then
+    if UnitInfront then
         return UnitInfront(target)
     end
     return ProbablyEngine.module.player.infront
@@ -777,6 +777,18 @@ ProbablyEngine.condition.register('interruptsAt', function (target, spell)
     return false
 end)
 
+ProbablyEngine.condition.register('interruptAt', function (target, spell)
+    if ProbablyEngine.condition['modifier.toggle']('interrupt') then
+    if UnitName('player') == UnitName(target) then return false end
+    local stopAt = tonumber(spell) or 95
+    local secondsLeft, castLength = ProbablyEngine.condition['casting.delta'](target)
+    if secondsLeft and 100 - (secondsLeft / castLength * 100) > stopAt then
+        return true
+    end
+    end
+    return false
+end)
+
 ProbablyEngine.condition.register("spell.cooldown", function(target, spell)
     local start, duration, enabled = GetSpellCooldown(spell)
     if not start then return false end
@@ -1088,4 +1100,8 @@ end)
 
 ProbablyEngine.condition.register("offspring", function(unit, _)
     return type(opos) == 'function' or false
+end)
+
+ProbablyEngine.condition.register("AdvancedUnlocker", function(unit, _)
+    return (FireHack or type(opos) == 'function') or false
 end)

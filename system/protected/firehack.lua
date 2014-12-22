@@ -104,7 +104,7 @@ function ProbablyEngine.protected.FireHack()
             local playerFacing = GetPlayerFacing()
             local facing = math.atan2(bY - aY, bX - aX) % 6.2831853071796
                 return math.abs(math.deg(math.abs(playerFacing - (facing)))-180) < 90
-            end
+        end
 
         function CastGround(spell, target)
             if UnitExists(target) then

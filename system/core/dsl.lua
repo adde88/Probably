@@ -142,49 +142,49 @@ ProbablyEngine.dsl.parse = function(dsl, spell)
     unitId = "!" .. ProbablyEngine.raid.lowestHP()
     ProbablyEngine.dsl.parsedTarget = unitId
   elseif unitId == "tank" then
+  if UnitExists("focus") then
+    unitId = "focus"
+    ProbablyEngine.dsl.parsedTarget = unitId
+  else
      local possibleTank = ProbablyEngine.raid.tank()
      if possibleTank then
        unitId = possibleTank
        ProbablyEngine.dsl.parsedTarget = unitId
      end
-  elseif unitId == "focus" then
-    if UnitExists("focus") then
-      unitId = "focus"
-      ProbablyEngine.dsl.parsedTarget = unitId
-	end
+  end
   elseif unitId == "!tank" then
+    if UnitExists("focus") then
+      unitId = "!focus"
+      ProbablyEngine.dsl.parsedTarget = unitId
+    else
       local possibleTank = ProbablyEngine.raid.tank()
       if possibleTank then
         unitId =  "!" .. possibleTank
         ProbablyEngine.dsl.parsedTarget = unitId
       end
-  elseif unitId == "!focus" then
-	if UnitExists("focus") then
-      unitId = "!focus"
-      ProbablyEngine.dsl.parsedTarget = unitId
-	end
+    end
   elseif unitId == "tanktarget" then
+    if UnitExists("focustarget") then
+      unitId = "focustarget"
+      ProbablyEngine.dsl.parsedTarget = unitId
+    else
       local possibleTank = ProbablyEngine.raid.tank()
       if possibleTank then
         unitId = possibleTank .. "target"
         ProbablyEngine.dsl.parsedTarget = unitId
       end
-  elseif unitId == "focustarget" then
-    if UnitExists("focustarget") then
-      unitId = "focustarget"
-      ProbablyEngine.dsl.parsedTarget = unitId
     end
   elseif unitId == "!tanktarget" then
+    if UnitExists("focustarget") then
+      unitId = "!focustarget"
+      ProbablyEngine.dsl.parsedTarget = unitId
+    else
       local possibleTank = ProbablyEngine.raid.tank()
       if possibleTank then
         unitId =  "!" .. possibleTank .. "target"
         ProbablyEngine.dsl.parsedTarget = unitId
       end
-  elseif unitId == "!focustarget" then
-	if UnitExists("focustarget") then
-      unitId = "!focustarget"
-      ProbablyEngine.dsl.parsedTarget = unitId
-	end
+    end
   end
 
   if unitId then table.insert(parse_table, unitId) end

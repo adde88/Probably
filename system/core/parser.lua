@@ -247,11 +247,11 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
       target = ProbablyEngine.raid.lowestHP()
       if target == false then return end
     elseif target == "tank" then
-       target = ProbablyEngine.raid.tank()
-	elseif target == "focus" then
-	  if UnitExists("focus") then
+      if UnitExists("focus") then
         target = "focus"
-	  end
+      else
+        target = ProbablyEngine.raid.tank()
+      end
     end
 
     if eventType == "string" or eventType == "number" then
