@@ -80,6 +80,7 @@ ProbablyEngine.condition.register("buff.any", function(target, spell)
 end)
 
 ProbablyEngine.condition.register("buff.count", function(target, spell)
+    if tonumber(spell) then spell = GetSpellInfo(spell) end
     local buff,count,_,caster = UnitBuff(target, spell)
     if not not buff and (caster == 'player' or caster == 'pet') then
     return count
@@ -244,11 +245,44 @@ ProbablyEngine.condition.register("energy", function(target, spell)
     return UnitPower(target, SPELL_POWER_ENERGY)
 end)
 
+ProbablyEngine.condition.register("solar", function(target, spell)
+    return GetEclipseDirection() == 'sun'
+end)
+
+ProbablyEngine.condition.register("lunar", function(target, spell)
+    return GetEclipseDirection() == 'moon'
+end)
+
+ProbablyEngine.condition.register("eclipse", function(target, spell)
+    return math.abs(UnitPower(target, SPELL_POWER_ECLIPSE))
+end)
+
+ProbablyEngine.condition.register("eclipseRaw", function(target, spell)
+    return UnitPower(target, SPELL_POWER_ECLIPSE)
+end)
+
 ProbablyEngine.condition.register("timetomax", function(target, spell)
     local max = UnitPowerMax(target)
     local curr = UnitPower(target)
     local regen = select(2, GetPowerRegen(target))
     return (max - curr) * (1.0 / regen)
+end)
+
+ProbablyEngine.condition.register("stealable", function(target, spellCast, spell)
+    for i=1, 40 do
+        local name, _, _, _, _, _, _, _, isStealable, _ = UnitAura(target, i)
+        if isStealable then
+            if spell then
+                if spell == GetSpellName(spell) then
+                    return true
+                else
+                    return false
+                end
+            end
+            return true
+        end
+    end
+    return false
 end)
 
 ProbablyEngine.condition.register("tomax", function(target, spell)
@@ -276,15 +310,15 @@ ProbablyEngine.condition.register("soulshards", function(target, spell)
 end)
 
 ProbablyEngine.condition.register("behind", function(target, spell)
-    if UnitInfront then
-        return not UnitInfront(target)
+    if FireHack then
+        return not UnitInfront(target, 'player')
     end
     return ProbablyEngine.module.player.behind
 end)
 
 ProbablyEngine.condition.register("infront", function(target, spell)
-    if UnitInfront then
-        return UnitInfront(target)
+    if FireHack then
+        return UnitInfront(target, 'player')
     end
     return ProbablyEngine.module.player.infront
 end)
@@ -526,70 +560,158 @@ ProbablyEngine.condition.register("runicpower", function(target, spell)
     return UnitPower(target, SPELL_POWER_RUNIC_POWER)
 end)
 
+local runes_t = {
+    [1] = 0,
+    [2] = 0,
+    [3] = 0,
+    [4] = 0
+}
+local runes_c = {
+    [1] = 0,
+    [2] = 0,
+    [3] = 0,
+    [4] = 0
+}
+
 ProbablyEngine.condition.register("runes.count", function(target, rune)
-    rune = string.lower(rune)
+    -- 12 b, 34 f, 56 u
+    runes_t[1], runes_t[2], runes_t[3], runes_t[4], runes_c[1], runes_c[2], runes_c[3], runes_c[4] = 0,0,0,0,0,0,0,0
+    for i=1, 6 do
+        local _, _, c = GetRuneCooldown(i)
+        local t = GetRuneType(i)
+        runes_t[t] = runes_t[t] + 1
+        if c then
+            runes_c[t] = runes_c[t] + 1
+        end
+    end
     if rune == 'frost' then
-    local r1 = select(3, GetRuneCooldown(5))
-    local r2 = select(3, GetRuneCooldown(6))
-    local f1 = GetRuneType(5)
-    local f2 = GetRuneType(6)
-    if (r1 and f1 == 3) and (r2 and f2 == 3) then
-        return 2
-    elseif (r1 and f1 == 3) or (r2 and f2 == 3) then
-        return 1
-    else
-        return 0
-    end
+        return runes_c[3]
     elseif rune == 'blood' then
-    local r1 = select(3, GetRuneCooldown(1))
-    local r2 = select(3, GetRuneCooldown(2))
-    local b1 = GetRuneType(1)
-    local b2 = GetRuneType(2)
-    if (r1 and b1 == 1) and (r2 and b2 == 1) then
-        return 2
-    elseif (r1 and b1 == 1) or (r2 and b2 == 1) then
-        return 1
-    else
-        return 0
-    end
+        return runes_c[1]
     elseif rune == 'unholy' then
-    local r1 = select(3, GetRuneCooldown(3))
-    local r2 = select(3, GetRuneCooldown(4))
-    local u1 = GetRuneType(3)
-    local u2 = GetRuneType(4)
-    if (r1 and u1 == 2) and (r2 and u2 == 2) then
-        return 2
-    elseif (r1 and u1 == 2) or (r2 and u2 == 2) then
-        return 1
-    else
-        return 0
-    end
+        return runes_c[2]
     elseif rune == 'death' then
-        local r1 = select(3, GetRuneCooldown(1))
-        local r2 = select(3, GetRuneCooldown(2))
-        local r3 = select(3, GetRuneCooldown(3))
-        local r4 = select(3, GetRuneCooldown(4))
-        local d1 = GetRuneType(1)
-        local d2 = GetRuneType(2)
-        local d3 = GetRuneType(3)
-        local d4 = GetRuneType(4)
-        local total = 0
-        if (r1 and d1 == 4) then
-            total = total + 1
-        end
-        if (r2 and d2 == 4) then
-            total = total + 1
-        end
-        if (r3 and d3 == 4) then
-            total = total + 1
-        end
-        if (r4 and d4 == 4) then
-            total = total + 1
-        end
-        return total
+        return runes_c[4]
+    elseif rune == 'Frost' then
+        return runes_c[3] + runes_c[4]
+    elseif rune == 'Blood' then
+        return runes_c[1] + runes_c[4]
+    elseif rune == 'Unholy' then
+        return runes_c[2] + runes_c[4]
     end
     return 0
 end)
+
+ProbablyEngine.condition.register("runes.frac", function(target, rune)
+    -- 12 b, 34 f, 56 u
+    runes_t[1], runes_t[2], runes_t[3], runes_t[4], runes_c[1], runes_c[2], runes_c[3], runes_c[4] = 0,0,0,0,0,0,0,0
+    for i=1, 6 do
+        local r, d, c = GetRuneCooldown(i)
+        local frac = 1-(r/d)
+        local t = GetRuneType(i)
+        runes_t[t] = runes_t[t] + 1
+        if c then
+            runes_c[t] = runes_c[t] + frac
+        end
+    end
+    if rune == 'frost' then
+        return runes_c[3]
+    elseif rune == 'blood' then
+        return runes_c[1]
+    elseif rune == 'unholy' then
+        return runes_c[2]
+    elseif rune == 'death' then
+        return runes_c[4]
+    elseif rune == 'Frost' then
+        return runes_c[3] + runes_c[4]
+    elseif rune == 'Blood' then
+        return runes_c[1] + runes_c[4]
+    elseif rune == 'Unholy' then
+        return runes_c[2] + runes_c[4]
+    end
+    return 0
+end)
+
+ProbablyEngine.condition.register("runes.cooldown_min", function(target, rune)
+    -- 12 b, 34 f, 56 u
+    runes_t[1], runes_t[2], runes_t[3], runes_t[4], runes_c[1], runes_c[2], runes_c[3], runes_c[4] = 0,0,0,0,0,0,0,0
+    for i=1, 6 do
+        local r, d, c = GetRuneCooldown(i)
+        local cd = (r + d) - GetTime()
+        local t = GetRuneType(i)
+        runes_t[t] = runes_t[t] + 1
+        if cd > 0 and runes_c[t] > cd then
+            runes_c[t] = cd
+        else
+            runes_c[t] = 8675309
+        end
+    end
+    if rune == 'frost' then
+        return runes_c[3]
+    elseif rune == 'blood' then
+        return runes_c[1]
+    elseif rune == 'unholy' then
+        return runes_c[2]
+    elseif rune == 'death' then
+        return runes_c[4]
+    elseif rune == 'Frost' then
+        if runes_c[3] < runes_c[4] then
+            return runes_c[3]
+        end
+        return runes_c[4]
+    elseif rune == 'Blood' then
+        if runes_c[1] < runes_c[4] then
+            return runes_c[1]
+        end
+        return runes_c[4]
+    elseif rune == 'Unholy' then
+        if runes_c[2] < runes_c[4] then
+            return runes_c[2]
+        end
+        return runes_c[4]
+    end
+    return 0
+end)
+
+ProbablyEngine.condition.register("runes.cooldown_max", function(target, rune)
+    -- 12 b, 34 f, 56 u
+    runes_t[1], runes_t[2], runes_t[3], runes_t[4], runes_c[1], runes_c[2], runes_c[3], runes_c[4] = 0,0,0,0,0,0,0,0
+    for i=1, 6 do
+        local r, d, c = GetRuneCooldown(i)
+        local cd = (r + d) - GetTime()
+        local t = GetRuneType(i)
+        runes_t[t] = runes_t[t] + 1
+        if cd > 0 and runes_c[t] < cd then
+            runes_c[t] = cd
+        end
+    end
+    if rune == 'frost' then
+        return runes_c[3]
+    elseif rune == 'blood' then
+        return runes_c[1]
+    elseif rune == 'unholy' then
+        return runes_c[2]
+    elseif rune == 'death' then
+        return runes_c[4]
+    elseif rune == 'Frost' then
+        if runes_c[3] > runes_c[4] then
+            return runes_c[3]
+        end
+        return runes_c[4]
+    elseif rune == 'Blood' then
+        if runes_c[1] > runes_c[4] then
+            return runes_c[1]
+        end
+        return runes_c[4]
+    elseif rune == 'Unholy' then
+        if runes_c[2] > runes_c[4] then
+            return runes_c[2]
+        end
+        return runes_c[4]
+    end
+    return 0
+end)
+
 
 ProbablyEngine.condition.register("runes.depleted", function(target, spell)
     local regeneration_threshold = 1
@@ -617,7 +739,6 @@ ProbablyEngine.condition.register("health", function(target)
 end)
 
 ProbablyEngine.condition.register("health.actual", function(target)
-	print('win')
     return UnitHealth(target)
 end)
 
@@ -651,7 +772,7 @@ end)
 ProbablyEngine.condition.register("modifier.interrupts", function()
     if ProbablyEngine.condition["modifier.toggle"]('interrupt') then
     local stop = ProbablyEngine.condition["casting"]('target')
-    if stop then SpellStopCasting() end
+    if stop then StopCast() end
     return stop
     end
     return false
@@ -664,7 +785,18 @@ ProbablyEngine.condition.register("modifier.interrupt", function()
     return false
 end)
 
+local lastDepWarn = false
+
 ProbablyEngine.condition.register("modifier.last", function(target, spell)
+    if not lastDepWarn then
+        ProbablyEngine.print('modifier.last has been deprecated, please use lastcast')
+        lastDepWarn = true
+    end
+    return ProbablyEngine.parser.lastCast == GetSpellName(spell)
+end)
+
+ProbablyEngine.condition.register("lastcast", function(spell, arg)
+    if arg then spell = arg end
     return ProbablyEngine.parser.lastCast == GetSpellName(spell)
 end)
 
@@ -706,7 +838,7 @@ ProbablyEngine.condition.register("mushrooms", function ()
 end)
 
 local function checkChanneling(target)
-    local name_, _, _, _, startTime, endTime, _, notInterruptible = UnitChannelInfo(target)
+    local name, _, _, _, startTime, endTime, _, notInterruptible = UnitChannelInfo(target)
     if name then return name, startTime, endTime, notInterruptible end
 
     return false
@@ -724,12 +856,14 @@ end
 
 ProbablyEngine.condition.register('casting.time', function(target, spell)
     local name, startTime, endTime = checkCasting(target)
+    if not endTime or not startTime then return false end
     if name then return (endTime - startTime) / 1000 end
     return false
 end)
 
 ProbablyEngine.condition.register('casting.delta', function(target, spell)
     local name, startTime, endTime, notInterruptible = checkCasting(target)
+    if not endTime or not startTime then return false end
     if name and not notInterruptible then
     local castLength = (endTime - startTime) / 1000
     local secondsLeft = endTime / 1000  - GetTime()
@@ -770,7 +904,7 @@ ProbablyEngine.condition.register('interruptsAt', function (target, spell)
     local stopAt = tonumber(spell) or 95
     local secondsLeft, castLength = ProbablyEngine.condition['casting.delta'](target)
     if secondsLeft and 100 - (secondsLeft / castLength * 100) > stopAt then
-        SpellStopCasting()
+        StopCast()
         return true
     end
     end
@@ -951,7 +1085,7 @@ ProbablyEngine.condition.register("role", function(target, role)
 end)
 
 ProbablyEngine.condition.register("name", function (target, expectedName)
-    return UnitName(target):lower():find(expectedName:lower()) ~= nil
+    return UnitExists(target) and UnitName(target):lower():find(expectedName:lower()) ~= nil
 end)
 
 ProbablyEngine.condition.register("modifier.party", function()
@@ -1090,6 +1224,14 @@ ProbablyEngine.condition.register("area.enemies", function(unit, distance)
     return 0
 end)
 
+ProbablyEngine.condition.register("area.friendly", function(unit, distance)
+    if FriendlyUnitsAroundUnit then
+        local total = FriendlyUnitsAroundUnit(unit, tonumber(distance))
+        return total
+    end
+    return 0
+end)
+
 ProbablyEngine.condition.register("ilevel", function(unit, _)
     return math.floor(select(1,GetAverageItemLevel()))
 end)
@@ -1100,8 +1242,4 @@ end)
 
 ProbablyEngine.condition.register("offspring", function(unit, _)
     return type(opos) == 'function' or false
-end)
-
-ProbablyEngine.condition.register("AdvancedUnlocker", function(unit, _)
-    return (FireHack or type(opos) == 'function') or false
 end)

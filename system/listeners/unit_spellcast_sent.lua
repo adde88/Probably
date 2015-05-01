@@ -4,6 +4,7 @@
 local function castSent(unitID, spell)
   if unitID == 'player' then
     ProbablyEngine.parser.lastCast = spell
+    ProbablyEngine.dataBroker.previous_spell.text = ProbablyEngine.parser.lastCast
     if ProbablyEngine.module.queue.spellQueue == spell then
       ProbablyEngine.module.queue.spellQueue = nil
     end

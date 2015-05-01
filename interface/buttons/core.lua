@@ -1,5 +1,6 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
+local L = ProbablyEngine.locale.get
 
 ProbablyEngine.buttons.create('MasterToggle', nil, function(self, button)
   if button == "LeftButton" then
@@ -19,8 +20,8 @@ ProbablyEngine.buttons.create('MasterToggle', nil, function(self, button)
     self.checked = self.checked
     self:SetChecked(self.checked)
   end
-end, pelg('toggle'), pelg('toggle_tooltip'))
+end, L('toggle'), L('toggle_tooltip'))
 
-ProbablyEngine.toggle.create('cooldowns', 'Interface\\ICONS\\Achievement_BG_winAB_underXminutes', pelg('cooldowns'), pelg('cooldowns_tooltip'))
-ProbablyEngine.toggle.create('multitarget', 'Interface\\ICONS\\Ability_Druid_Starfall', pelg('multitarget'), pelg('multitarget_tooltip'))
-ProbablyEngine.toggle.create('interrupt', 'Interface\\ICONS\\Ability_Kick.png', pelg('interrupt'), pelg('interrupt_tooltip'))
+ProbablyEngine.toggle.create('cooldowns', 'Interface\\ICONS\\Achievement_BG_winAB_underXminutes', L('cooldowns'), L('cooldowns_tooltip'))
+ProbablyEngine.toggle.create('multitarget', 'Interface\\ICONS\\Ability_Druid_Starfall', L('multitarget'), L('multitarget_tooltip'))
+ProbablyEngine.toggle.create('interrupt', 'Interface\\ICONS\\Ability_Kick.png', L('interrupt'), L('interrupt_tooltip'))

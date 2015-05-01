@@ -1,6 +1,8 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
+local L = ProbablyEngine.locale.get
+
 ProbablyEngine.interface = {}
 
 local DiesalTools = LibStub("DiesalTools-1.0")
@@ -49,170 +51,6 @@ DiesalGUI:RegisterObjectConstructor("Rule", function()
 	self.type = "Rule"
 	return self
 end, 1)
-
-local test_data = {
-	key = "testdata",
-	title = "Player Position",
-	width = 250,
-	height = 105,
-	resize = false,
-	config = {
-		{
-			type = "text",
-			text = "X: ",
-			size = 20,
-			offset = -20
-		},
-		{
-			key = 'x',
-			type = "text",
-			text = "Random",
-			size = 20,
-			align = "right",
-			offset = 5
-		},
-		{
-			type = "text",
-			text = "Y: ",
-			size = 20,
-			offset = -20
-		},
-		{
-			key = 'y',
-			type = "text",
-			text = "Random",
-			size = 20,
-			align = "right",
-			offset = 5
-		},
-		{
-			type = "text",
-			text = "Z: ",
-			size = 20,
-			offset = -20
-		},
-		{
-			key = 'z',
-			type = "text",
-			text = "Random",
-			size = 20,
-			align = "right",
-			offset = 5
-		}
-	}
-}
-
-local test_config = {
-	key = "testconf",
-	title = "Title",
-	subtitle = "Subtitle",
-	color = "005522",
-	width = 200,
-	height = 300,
-	profiles = true,
-	config = {
-		{
-			type = 'header',
-			text = 'Header Text'
-		},
-		{ type = 'rule' },
-		{
-			type = 'text',
-			text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-		},
-		{
-			type = 'text',
-			text = "Vivamus leo elit, fermentum non rhoncus in, blandit sed quam.",
-			size = 8
-		},
-		{
-			type = "input",
-			text = "Bibendum lacus",
-			default = "Vivamus",
-			key = "input1",
-			width = 80,
-		},
-		{
-			type = "checkbox",
-			text = "Example Check",
-			desc = "Mauris vitae lobortis nisl.",
-			key = "check1",
-			default = false
-		},
-		{
-			type = "spinner",
-			text = "Simple Spinner",
-			desc = "Fusce vel nulla convallis, euismod urna vel, congue mauris. Donec bibendum lacus metus, ut ornare lorem tempor ut.",
-			key = "spin1",
-			width = 35,
-			default = 500,
-			min = 100,
-			max = 1000,
-			step = 100,
-			shiftStep = 10
-		},
-		{
-			type = "checkspin",
-			text = "Spinner Check",
-			desc = "Morbi dignissim felis vel commodo iaculis.",
-			key = "checkspin1",
-			default_check = true,
-			default_spin = 2345,
-			width = 40,
-			min = 1000,
-			max = 10000,
-			step = 1000,
-			shiftStep = 100
-		},
-		{ type = 'rule' },
-		{
-			type = "dropdown",
-			text = "Dropdown",
-			key = "dropdown1",
-			list = {
-				{
-					text = "Lorem ipsum",
-					key = "value1"
-				},
-				{
-					text = "Dolor sit amet",
-					key = "value2"
-				}
-			},
-			default = "value1",
-			desc = "Praesent hendrerit congue massa sed auctor. Fusce sagittis porttitor volutpat.",
-		},
-		{
-			type = "button",
-			text = "Lorem Ipsum",
-			desc = "Etiam sed aliquam dolor.",
-			width = 75,
-			height = 15,
-			callback = function()
-				print('It Works!')
-			end
-		},
-}}
-local test_nest
-
-test_nest = {
-	title = "Sub Windows",
-	subtitle = "Wooo!",
-	width = 200,
-	height = 60,
-	resize = false,
-	config = {
-		{
-			type = "button",
-			text = "Open Window",
-			width = 180,
-			height = 20,
-			callback = function()
-				ProbablyEngine.interface.buildGUI(test_nest)
-			end
-		}
-	}
-}
 
 local buttonStyleSheet = {
 	['frame-color'] = {	
@@ -265,6 +103,38 @@ local spinnerStyleSheet = {
 	},
 }
 
+local createButtonStyle = {
+	type			= 'texture',
+	texFile		= 'DiesalGUIcons',
+	texCoord		= {1,6,16,256,128},
+	alpha 		= .7,
+	offset		= {-2,nil,-2,nil},
+	width			= 16,
+	height		= 16,
+}
+local deleteButtonStyle = {
+	type			= 'texture',
+	texFile		='DiesalGUIcons',
+	texCoord		= {2,6,16,256,128},
+	alpha 		= .7,
+	offset		= {-2,nil,-2,nil},
+	width			= 16,
+	height		= 16,
+}
+local ButtonNormal = {
+	type			= 'texture',
+	texColor		= 'ffffff',
+	alpha 		= .7,
+}
+local ButtonOver = {
+	type			= 'texture',
+	alpha 		= 1,
+}
+local ButtonClicked = {
+	type			= 'texture',
+	alpha 		= .3,
+}
+
 function buildElements(table, parent)
 
 	local offset = -5
@@ -281,7 +151,11 @@ function buildElements(table, parent)
 			tmp = tmp.fontString
 			tmp:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 5, offset)
 			tmp:SetText(element.text)
-			tmp:SetJustifyH('LEFT')
+            if element.justify then
+                tmp:SetJustifyH(element.justify)
+            else
+                tmp:SetJustifyH('LEFT')
+            end
 			tmp:SetFont(SharedMedia:Fetch('font', 'Calibri Bold'), 13)
 			tmp:SetWidth(parent.content:GetWidth()-10)
 			
@@ -686,6 +560,13 @@ function buildElements(table, parent)
 			offset = offset + -16
 		end
 
+        if element.push then
+            push = push + element.push
+        end
+        if element.pull then
+            pull = pull + element.pull
+        end
+
 		offset = offset + -(push)
 		offset = offset + pull
 		
@@ -693,44 +574,21 @@ function buildElements(table, parent)
 
 end
 
-local createButtonStyle = {
-	type			= 'texture',
-	texFile		= 'DiesalGUIcons',
-	texCoord		= {1,6,16,256,128},
-	alpha 		= .7,
-	offset		= {-2,nil,-2,nil},
-	width			= 16,
-	height		= 16,
-}
-local deleteButtonStyle = {
-	type			= 'texture',
-	texFile		='DiesalGUIcons',
-	texCoord		= {2,6,16,256,128},
-	alpha 		= .7,
-	offset		= {-2,nil,-2,nil},
-	width			= 16,
-	height		= 16,
-}
-local ButtonNormal = {
-	type			= 'texture',
-	texColor		= 'ffffff',
-	alpha 		= .7,
-}
-local ButtonOver = {
-	type			= 'texture',
-	alpha 		= 1,
-}
-local ButtonClicked = {
-	type			= 'texture',
-	alpha 		= .3,
-}
-
 function ProbablyEngine.interface.fetchKey(keyA, keyB, default)
 	local selectedProfile = ProbablyEngine.config.read(keyA .. '_profile', 'Default Profile')
 	if selectedProfile then
 		return ProbablyEngine.config.read(keyA .. selectedProfile .. '_' .. keyB, default)
 	else
 		return ProbablyEngine.config.read(keyA .. '_' .. keyB, default)
+	end
+end
+
+function ProbablyEngine.interface.writeKey(keyA, keyB, value)
+	local selectedProfile = ProbablyEngine.config.read(keyA .. '_profile', 'Default Profile')
+	if selectedProfile then
+		return ProbablyEngine.config.write(keyA .. selectedProfile .. '_' .. keyB, value)
+	else
+		return ProbablyEngine.config.write(keyA .. '_' .. keyB, value)
 	end
 end
 
@@ -962,76 +820,51 @@ function ProbablyEngine.interface.buildGUI(config)
 	return window
 
 end
---[[
-function createTestGUI()
-	ProbablyEngine.interface.buildGUI(test_config)
-end
-
-C_Timer.NewTicker(2, createTestGUI, 1)
-
-
-
-local windowRef = ProbablyEngine.interface.buildGUI(test_data)
-
-function updatePositions()
-	local x, y, z = ObjectPosition('player')
-	windowRef.elements.x:SetText(math.round(x, 2))
-	windowRef.elements.y:SetText(math.round(y, 2))
-	windowRef.elements.z:SetText(math.round(z, 2))
-end
-
-C_Timer.NewTicker(0.01, updatePositions, nil)
-
-ProbablyEngine.interface.buildGUI(test_nest)
-
-
-local casting = {
-	title = "ProbablyEngine",
-	subtitle = "Current Spell",
-	width = 250,
-	height = 70,
-	resize = false,
-	config = {
-		{
-			type = "text",
-			text = "Current Spell: ",
-			size = 14,
-			offset = -14
-		},
-		{
-			key = 'current',
-			type = "text",
-			text = "Random",
-			size = 14,
-			align = "right",
-			offset = 5,
-		},
-		{
-			type = "text",
-			text = "Last Spell: ",
-			size = 14,
-			offset = -14
-		},
-		{
-			key = 'last',
-			type = "text",
-			text = "Random",
-			size = 14,
-			align = "right",
-		},
-	}
-}
-
-local windowRef = ProbablyEngine.interface.buildGUI(casting)
-
-function updateSpell()
-	windowRef.elements.current:SetText(ProbablyEngine.current_spell or 'Idle')
-	windowRef.elements.last:SetText(ProbablyEngine.parser.lastCast or 'Idle')
-end
-
-C_Timer.NewTicker(0.01, updateSpell, nil)
-]]
 
 ProbablyEngine.interface.init = function()
 	ProbablyEngine.interface.minimap.create()
+end
+
+
+local corePEconfig = {
+	key = "corePEconfig",
+	title = "ProbablyEngine",
+	subtitle = "Configuration",
+	profiles = false,
+	width = 250,
+    height = 400,
+    resize = false,
+	config = {
+        { type = "header", justify = 'LEFT', text = ProbablyEngine.addonName },
+        { type = "spacer", size = 0, pull = 16 },
+		{ type = "header", justify = 'RIGHT', text = "v" .. ProbablyEngine.version },
+		{ type = "rule" },
+		{ type = "button", text = "Unlock Buttons", width = 233, height = 20, push = 2, callback = function(self, button)
+				if not self.button_moving then
+			      ProbablyEngine.buttons.frame:Show()
+			      self:SetText("Lock Buttons")
+			      self.button_moving = true
+			    else
+			      ProbablyEngine.buttons.frame:Hide()
+			      self:SetText("Unlock Buttons")
+			      self.button_moving = false
+			    end
+		end},
+		{ type = "rule" },
+	}
+}
+
+ProbablyEngine.interface.corePEconfigFrame = ProbablyEngine.interface.buildGUI(corePEconfig)
+ProbablyEngine.interface.corePEconfigFrame.parent:Hide()
+
+ProbablyEngine.interface.corePEconfigFrame.parent:SetEventListener('OnClose', function(self)
+	ProbablyEngine.interface.corePEconfigFrame.parent:Hide()
+end)
+
+ProbablyEngine.interface.showProbablyConfig = function()
+	if ProbablyEngine.interface.corePEconfigFrame.parent:IsShown() then
+		ProbablyEngine.interface.corePEconfigFrame.parent:Hide()
+	else
+		ProbablyEngine.interface.corePEconfigFrame.parent:Show()
+	end
 end

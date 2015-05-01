@@ -15,6 +15,14 @@ pels('multitarget_tooltip', 'Toggle the usage of multi-target abilities.')
 pels('interrupt', 'Interrupts')
 pels('interrupt_tooltip', 'Toggle the usage of spell interrupts.')
 pels('drag_to_position', 'Drag to Position')
+pels('current_spell', 'Current Spell')
+pels('previous_spell', 'Previous Spell')
+pels('none', 'None')
+pels('enable', 'Enable')
+pels('enabled', 'Enabled')
+pels('disable', 'Disable')
+pels('disabled', 'Disabled')
+pels('status', 'Status:')
 
 -- Buttons Menu
 pels('rtn_default', 'Default Rotations')
@@ -25,8 +33,12 @@ pels('rtn_nocustom', 'No Custom Rotations Loaded')
 -- General
 pels('left_click', 'Left-Click')
 pels('right_click', 'Right-Click')
+pels('mod_click', 'Shift/Ctrl/Alt-Click')
 pels('drag', 'Drag')
 pels('rotation_loaded', 'rotation loaded!')
+pels('casting', 'Casting')
+pels('on', 'on')
+pels('on the ground', 'on the ground!')
 
 -- Minimap
 pels('open_config', 'to open configuration')
@@ -52,10 +64,20 @@ pels('help_al', 'Toggle the Action Log.')
 pels('help_version', 'Show the current version.')
 pels('help_help', 'Show this message.')
 pels('help_turbo', 'Toggle turbo mode.')
+pels('help_toggleui', 'Toggles the visibility of the user interface.')
 pels('unknown_type', 'Unknown Command Type')
 
 pels('turbo_enable', 'Turbo Mode Enabled!')
 pels('turbo_disable', 'Turbo Mode Disabled!')
+
+-- Protected
+pels('unlock_generic', 'Detected a generic Lua unlock!  Some advanced features will not work.')
+pels('unlock_none', 'No unlock found, now in FaceRoll mode. Checking for unlock...')
+pels('unlock_firehack', 'Detected FireHack!')
+pels('unlock_offspring', 'Detected OffSpring!')
+pels('offspring_los_warn', 'OffSpring does not support LoS from an arbitrary unit, only player.')
+pels('unlock_wowsx', 'Detected WoWSX!')
+
 
 -- classes
 pels('arcane_mage', 'Arcane Mage')

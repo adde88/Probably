@@ -7,7 +7,8 @@ local function channelStart(unitID)
       ProbablyEngine.module.queue.spellQueue = nil
     end
     ProbablyEngine.module.player.casting = true
-    ProbablyEngine.parser.lastCast = UnitCastingInfo('player')
+    ProbablyEngine.parser.lastCast = UnitChannelInfo('player')
+    ProbablyEngine.dataBroker.previous_spell.text = ProbablyEngine.parser.lastCast
   elseif unitID == 'pet' then
     ProbablyEngine.module.pet.casting = true
   end

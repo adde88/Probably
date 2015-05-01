@@ -3,4 +3,5 @@
 
 ProbablyEngine.listener.register("PLAYER_REGEN_ENABLED", function(...)
   ProbablyEngine.module.player.combat = false
+  ProbablyEngine.module.player.castCache = {}
 end)

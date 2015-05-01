@@ -1,6 +1,8 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
+local L = ProbablyEngine.locale.get
+
 local function HexToRGBPerc(hex)
   local rhex, ghex, bhex = string.sub(hex, 1, 2), string.sub(hex, 3, 4), string.sub(hex, 5, 6)
   return tonumber(rhex, 16)/255, tonumber(ghex, 16)/255, tonumber(bhex, 16)/255
@@ -63,7 +65,7 @@ UnitTrackerHeader.texture = UnitTrackerHeader_texture
 UnitTrackerHeader.statusText = UnitTrackerHeader:CreateFontString('PE_StatusText')
 UnitTrackerHeader.statusText:SetFont("Fonts\\ARIALN.TTF", 10)
 UnitTrackerHeader.statusText:SetPoint("CENTER", UnitTrackerHeader)
-UnitTrackerHeader.statusText:SetText(pelg('combat_tracker'))
+UnitTrackerHeader.statusText:SetText(L('combat_tracker'))
 
 local displayTTD = ProbablyEngine.config.read('ct_dttd', false)
 local displayTotal = ProbablyEngine.config.read('ct_dtotal', false)
@@ -86,9 +88,9 @@ UnitTrackerTotal.statusText:SetPoint("RIGHT", UnitTrackerTotal, 0, 0)
 UnitTrackerTotal.statusText:SetText("T")
 
 if displayTTD then
-  UnitTrackerToggle.statusText:SetText(pelg('ttd'))
+  UnitTrackerToggle.statusText:SetText(L('ttd'))
 else
-  UnitTrackerToggle.statusText:SetText(pelg('hpr'))
+  UnitTrackerToggle.statusText:SetText(L('hpr'))
 end
 
 if displayTotal then
@@ -100,9 +102,9 @@ end
 UnitTrackerToggle:SetScript("OnClick", function(self, button)
   displayTTD = not displayTTD
   if displayTTD then
-    UnitTrackerToggle.statusText:SetText(pelg('ttd'))
+    UnitTrackerToggle.statusText:SetText(L('ttd'))
   else
-    UnitTrackerToggle.statusText:SetText(pelg('hpr'))
+    UnitTrackerToggle.statusText:SetText(L('hpr'))
   end
   ProbablyEngine.config.write('ct_dttd', displayTTD)
 end)
@@ -237,7 +239,7 @@ ProbablyEngine.timer.register("updateCTHealthUI", function()
               seconds = ProbablyEngine.module.combatTracker.enemy[guid]['ttd']
               deaht_in = string.format("%.2d:%.2d", seconds/60, seconds%60)
             else
-              deaht_in = pelg('est')
+              deaht_in = L('est')
             end
             CombatTableUnit[currentRow].unitHealth:SetText(deaht_in)
           else
@@ -250,18 +252,18 @@ ProbablyEngine.timer.register("updateCTHealthUI", function()
           totalHP = totalHP + unit.maxHealth
           local remaining = math.floor(unit.maxHealth / 1000)
           CombatTableUnit[currentRow]:SetValue(100)
-          CombatTableUnit[currentRow].unitHealth:SetText(remaining .. pelg('k'))
+          CombatTableUnit[currentRow].unitHealth:SetText(remaining .. L('k'))
         elseif unit.health then
           -- We have the units HP now, but not its max HP
           -- this should never happen.. but here it is
           totalCurrentHP = totalCurrentHP + unit.health
           local remaining = math.floor(unit.health / 1000)
           CombatTableUnit[currentRow]:SetValue(100)
-          CombatTableUnit[currentRow].unitHealth:SetText(remaining .. pelg('k'))
+          CombatTableUnit[currentRow].unitHealth:SetText(remaining .. L('k'))
         else
           -- we actually don't know the units health :'(
           CombatTableUnit[currentRow]:SetValue(100)
-          CombatTableUnit[currentRow].unitHealth:SetText(pelg('na'))
+          CombatTableUnit[currentRow].unitHealth:SetText(L('na'))
         end
         currentRow = currentRow + 1
       end
@@ -278,10 +280,10 @@ ProbablyEngine.timer.register("updateCTHealthUI", function()
   end
 
   if displayTotal then
-    CombatTableUnit[1].unitName:SetText(pelg('all_units'))
+    CombatTableUnit[1].unitName:SetText(L('all_units'))
     CombatTableUnit[1]:SetPoint("TOPLEFT", UnitTracker, "TOPLEFT", 0, tracking_height*-1)
     CombatTableUnit[1]:SetValue(totalPercent)
-    CombatTableUnit[1].unitHealth:SetText(totalRemaining .. pelg('k'))
+    CombatTableUnit[1].unitHealth:SetText(totalRemaining .. L('k'))
   end
 
   for i = currentRow, max_tracking do

@@ -1,5 +1,6 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
+local L = ProbablyEngine.locale.get
 
 ProbablyEngine.toggle = {}
 

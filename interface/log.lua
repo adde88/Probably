@@ -1,6 +1,8 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
+local L = ProbablyEngine.locale.get
+
 local stringLen = string.len
 
 local log_height = 16

@@ -5,11 +5,11 @@ ProbablyEngine.module.register("tracker", {
 	units = { }
 })
 
---[[
-local DiesalGUI = LibStub("DiesalGUI-1.0")
-local explore = DiesalGUI:Create('TableExplorer')
-explore:SetTable("Aura Tracker", ProbablyEngine.module.tracker.units, 5)
-]]
+
+--local DiesalGUI = LibStub("DiesalGUI-1.0")
+--local explore = DiesalGUI:Create('TableExplorer')
+--explore:SetTable("Aura Tracker", ProbablyEngine.module.tracker.units, 5)
+
 
 local tracker = ProbablyEngine.module.tracker
 

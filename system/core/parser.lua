@@ -59,7 +59,7 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
       local timeNow = GetTime()
       local canCancel = ((endTime / 1000) - timeNow) * 1000
       if canCancel < (ProbablyEngine.lag*ProbablyEngine.turbo.modifier) then
-        SpellStopCasting()
+        StopCast()
       end
     end
   end
@@ -74,7 +74,7 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
     if string.sub(unit, -7) == ".ground" then unit = nil end
   end
 
-  if unit and unit ~= "player" and UnitID(unit) ~= 76585 and UnitExists(unit) and UnitIsVisible(unit) and LineOfSight then
+  if unit and unit ~= "player" and UnitID(unit) ~= 76585 and UnitID(unit) ~= 77891 and UnitID(unit) ~= 77893 and UnitExists(unit) and UnitIsVisible(unit) and LineOfSight then
     if not LineOfSight('player', unit) then
       return false
     end
@@ -160,7 +160,7 @@ ProbablyEngine.parser.can_cast =  function(spell, unit, stopCasting)
   end
 
   if stopCasting then
-    SpellStopCasting()
+    StopCast()
     return true
   end
 
@@ -295,6 +295,10 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
         if slotId then
           local itemStart, itemDuration, itemEnable = GetInventoryItemCooldown("player", slotId)
           itemId = GetInventoryItemID("player", slotId)
+          local isUsable, notEnoughMana = IsUsableItem(itemId)
+          if not isUsable then
+            evaluation = false
+          end
           if itemStart > 0 then
             evaluation = false
           elseif not GetItemSpell(itemId) then
@@ -311,6 +315,10 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
         if itemId then
           itemName, _, _, _, _, _, _, _, _, itemTexture, _ = GetItemInfo(itemId)
           local itemStart, itemDuration, itemEnable = GetItemCooldown(itemId)
+          local isUsable, notEnoughMana = IsUsableItem(itemId)
+          if not isUsable then
+            evaluation = false
+          end
           if itemStart > 0 then
             evaluation = false
           elseif GetItemCount(itemId) == 0 then
@@ -328,12 +336,12 @@ ProbablyEngine.parser.table = function(spellTable, fallBackTarget)
         Macro(event)
         return false
       elseif eventType == "item" then
-        if stopCasting then SpellStopCasting() end
-        UseInventoryItem(slotId)
+        if stopCasting then StopCast() end
+        UseInvItem(slotId)
         ProbablyEngine.actionLog.insert('Use Inventory Item', itemName, itemTexture, target)
         return false
       elseif eventType == "bagItem" then
-        if stopCasting then SpellStopCasting() end
+        if stopCasting then StopCast() end
         if not ProbablyEngine.timeout.check(itemName) then
           ProbablyEngine.timeout.set(itemName, 0.15, function()
             UseItem(itemName, target)

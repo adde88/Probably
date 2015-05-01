@@ -3,6 +3,8 @@
 
 -- Functions that require FireHack
 
+local L = ProbablyEngine.locale.get
+
 function ProbablyEngine.protected.FireHack()
 
     if FireHack then
@@ -47,28 +49,58 @@ function ProbablyEngine.protected.FireHack()
         local uau_cache_time = { }
         local uau_cache_count = { }
         local uau_cache_dura = 0.1
-        function UnitsAroundUnit(unit, distance, checkCombat)
-            local uau_cache_time_c = uau_cache_time[unit..distance..tostring(checkCombat)]
+        function UnitsAroundUnit(unit, distance, ignoreCombat)
+            local uau_cache_time_c = uau_cache_time[unit..distance..tostring(ignoreCombat)]
             if uau_cache_time_c and ((uau_cache_time_c + uau_cache_dura) > GetTime()) then
-                return uau_cache_count[unit..distance..tostring(checkCombat)]
+                return uau_cache_count[unit..distance..tostring(ignoreCombat)]
             end
             if UnitExists(unit) then
                 local total = 0
                 local totalObjects = ObjectCount()
                 for i = 1, totalObjects do
                     local object = ObjectWithIndex(i)
-                    if bit.band(ObjectType(object), ObjectTypes.Unit) > 0 then
+                    local _, oType = pcall(ObjectType, object)
+                    if bit.band(oType, ObjectTypes.Unit) > 0 then
                         local reaction = UnitReaction("player", object)
                         local combat = UnitAffectingCombat(object)
-                        if reaction and reaction <= 4 and (checkCombat or combat) then
+                        if reaction and reaction <= 4 and (ignoreCombat or combat) then
                             if Distance(object, unit) <= distance then
                                 total = total + 1
                             end
                         end
                     end
                 end
-                uau_cache_count[unit..distance..tostring(checkCombat)] = total
-                uau_cache_time[unit..distance..tostring(checkCombat)] = GetTime()
+                uau_cache_count[unit..distance..tostring(ignoreCombat)] = total
+                uau_cache_time[unit..distance..tostring(ignoreCombat)] = GetTime()
+                return total
+            else
+                return 0
+            end
+        end
+
+        function FriendlyUnitsAroundUnit(unit, distance, ignoreCombat)
+            local uau_cache_time_c = uau_cache_time[unit..distance..tostring(ignoreCombat)..'f']
+            if uau_cache_time_c and ((uau_cache_time_c + uau_cache_dura) > GetTime()) then
+                return uau_cache_count[unit..distance..tostring(ignoreCombat)..'f']
+            end
+            if UnitExists(unit) then
+                local total = 0
+                local totalObjects = ObjectCount()
+                for i = 1, totalObjects do
+                    local object = ObjectWithIndex(i)
+                    local _, oType = pcall(ObjectType, object)
+                    if bit.band(oType, ObjectTypes.Unit) > 0 then
+                        local reaction = UnitReaction("player", object)
+                        local combat = UnitAffectingCombat(object)
+                        if reaction and reaction >= 5 and (ignoreCombat or combat) then
+                            if Distance(object, unit) <= distance then
+                                total = total + 1
+                            end
+                        end
+                    end
+                end
+                uau_cache_count[unit..distance..tostring(ignoreCombat)..'f'] = total
+                uau_cache_time[unit..distance..tostring(ignoreCombat)..'f'] = GetTime()
                 return total
             else
                 return 0
@@ -97,18 +129,32 @@ function ProbablyEngine.protected.FireHack()
             end
             return true
         end
-
+        
+        --[[
         function UnitInfront(unit)
             local aX, aY, aZ = ObjectPosition(unit)
             local bX, bY, bZ = ObjectPosition('player')
             local playerFacing = GetPlayerFacing()
             local facing = math.atan2(bY - aY, bX - aX) % 6.2831853071796
-                return math.abs(math.deg(math.abs(playerFacing - (facing)))-180) < 90
+            return math.abs( math.abs(playerFacing - facing) - 180 ) < 1.5707963267949
+        end
+        ]]
+
+        function UnitInfront(unit1, unit2)
+            if not (UnitExists(unit1) and UnitExists(unit2)) then return end
+            local x1, y1, _ = ObjectPosition(unit1)
+            local x2, y2, _ = ObjectPosition(unit2)
+            local facing = ObjectFacing(unit1)
+            local angle = atan2(y1 - y2, x1 - x2) - deg(facing)
+            if angle < 0 then
+                angle = angle + 360
+            end
+            return (angle > 120 and angle < 240)
         end
 
         function CastGround(spell, target)
             if UnitExists(target) then
-              CastSpellByName(spell)
+              Cast(spell, target)
               CastAtPosition(ObjectPosition(target))
               CancelPendingSpell()
               return
@@ -136,6 +182,10 @@ function ProbablyEngine.protected.FireHack()
             return UseItemByName(name, target)
         end
 
+        function UseInvItem(slot)
+                return UseInventoryItem(slot)
+            end
+
         function Cast(spell, target)
             if type(spell) == "number" then
                 CastSpellByID(spell, target)
@@ -147,7 +197,7 @@ function ProbablyEngine.protected.FireHack()
         ProbablyEngine.protected.unlocked = true
         ProbablyEngine.protected.method = "firehack"
         ProbablyEngine.timer.unregister('detectUnlock')
-        ProbablyEngine.print('Detected FireHack!')
+        ProbablyEngine.print(L('unlock_firehack'))
 
     end
 

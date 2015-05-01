@@ -5,6 +5,7 @@ local UnitClass = UnitClass
 local GetSpecialization = GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo
 local CLASS_ICON_TCOORDS = CLASS_ICON_TCOORDS
+local L = ProbablyEngine.locale.get
 
 local player = {
   castCache = {},
@@ -47,7 +48,7 @@ function player.updateSpec()
     player.specID = specID
     player.specName = specName and specName or player.className
 
-    ProbablyEngine.print('|c' .. color.colorStr .. player.specName .. ' ' .. name .. '|r ' .. pelg('rotation_loaded'))
+    ProbablyEngine.print('|c' .. color.colorStr .. player.specName .. ' ' .. name .. '|r ' .. L('rotation_loaded'))
     ProbablyEngine.rotation.loadLastRotation()
   end
 end

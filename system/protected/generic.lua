@@ -3,6 +3,8 @@
 
 -- Function prototypes
 
+local L = ProbablyEngine.locale.get
+
 ProbablyEngine.protected.generic_check = false
 
 function ProbablyEngine.protected.Generic()
@@ -12,7 +14,7 @@ function ProbablyEngine.protected.Generic()
 			ProbablyEngine.protected.unlocked = true
 			ProbablyEngine.protected.method = "generic"
 			ProbablyEngine.timer.unregister('detectUnlock')
-			ProbablyEngine.print('Detected a generic Lua unlock!  Some advanced features will not work.')
+			ProbablyEngine.print(L('unlock_generic'))
 
 			function Cast(spell, target)
 				if type(spell) == "number" then
@@ -39,13 +41,20 @@ function ProbablyEngine.protected.Generic()
 			function UseItem(name, target)
 				return UseItemByName(name, target)
 			end
+			
+			-- this will work for now
+			if IsMacClient() then
+				ProbablyEngine.timer.register("detectWoWSX", function()
+					ProbablyEngine.protected.WoWSX()
+				end, 1000)
+			end
 
 		else
 			ProbablyEngine.faceroll.rolling = true
 			ProbablyEngine.faceroll.noticed = false
 		end
 	elseif ProbablyEngine.faceroll.rolling and not ProbablyEngine.faceroll.noticed then
-		ProbablyEngine.print('No unlock found, now in FaceRoll mode, /reload your UI to check again.')
+		ProbablyEngine.print(L('unlock_none'))
 		ProbablyEngine.faceroll.noticed = true
 	end
 end

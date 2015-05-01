@@ -8,6 +8,7 @@ local function castStart(unitID)
     end
     ProbablyEngine.module.player.casting = true
     ProbablyEngine.parser.lastCast = UnitCastingInfo('player')
+    ProbablyEngine.dataBroker.previous_spell.text = ProbablyEngine.parser.lastCast
   elseif unitID == 'pet' then
     ProbablyEngine.module.pet.casting = true
   end

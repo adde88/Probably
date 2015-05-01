@@ -1,6 +1,8 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
+local L = ProbablyEngine.locale.get
+
 ProbablyEngine.command = {
   commands = 0,
   handlers = { }
@@ -25,7 +27,7 @@ ProbablyEngine.command.register_handler = function(command, handler)
       ProbablyEngine.command.handlers[com] = handler
     end
   else
-    ProbablyEngine.command.print(pelg('unknown_type') .. ': ' .. command_type)
+    ProbablyEngine.command.print(L('unknown_type') .. ': ' .. command_type)
   end
 end
 

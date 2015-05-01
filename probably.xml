@@ -4,6 +4,8 @@
   <!-- external libs -->
   <Script file="external\LibStub\LibStub.lua" />
   <Include file="external\CallbackHandler-1.0\CallbackHandler-1.0.xml" />
+  <Script file="external\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
+  <Include file="external\LibDBIcon-1.0\lib.xml"/>
   <Script file="external\LibRangeCheck-2.0\LibRangeCheck-2.0.lua" />
   <Script file="external\LibDispellable-1.0\LibDispellable-1.0.lua" />
   <Script file="external\LibBossIDs-1.0\LibBossIDs-1.0.lua" />
@@ -13,6 +15,7 @@
   <Include file="external\DiesalGUI-1.0\DiesalGUI-1.0.xml" />
   <Include file="external\DiesalMenu-1.0\DiesalMenu-1.0.xml" />
   <Script file="external\DiesalGUI-1.0\Objects\TableExplorer.lua" />
+  <Script file="external\LibDraw-1.0\LibDraw.lua" />
 
   <!-- shebang -->
   <Script file="probably.lua" />
@@ -48,6 +51,7 @@
   <Script file="system\protected\base.lua" />
   <Script file="system\protected\firehack.lua" />
   <Script file="system\protected\offspring.lua" />
+  <Script file="system\protected\wowsx.lua" />
   <Script file="system\protected\generic.lua" />
 
   <!-- Conditions -->
@@ -76,6 +80,7 @@
 
   <!-- Interface -->
   <Script file="interface\interface.lua" />
+  <Script file="interface\databroker.lua" />
   <Script file="interface\minimap.lua" />
   <Script file="interface\buttons.lua" />
   <Script file="interface\toggle.lua" />

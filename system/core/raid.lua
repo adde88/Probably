@@ -24,7 +24,7 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsFriend = UnitIsFriend
 local UnitUsingVehicle = UnitUsingVehicle
 
-local function canHeal(unit)
+local function canHeal(unit, ignoreRange)
   if UnitExists(unit)
      and UnitCanAssist('player', unit)
      and UnitIsFriend('player', unit)
@@ -32,7 +32,7 @@ local function canHeal(unit)
      and not UnitIsDeadOrGhost(unit)
      and not UnitUsingVehicle(unit) then
 
-     if UnitInParty(unit) and not UnitInRange(unit) then
+     if not ignoreRange and UnitInParty(unit) and not UnitInRange(unit) then
        return false
      end
 
@@ -187,36 +187,52 @@ ProbablyEngine.raid.needsHealing = function (threshold)
   return needsHealing
 end
 
+-- Focus with Tank Role > Another Tank > Tank Role > Focus > Highest Health > Player
 ProbablyEngine.raid.tank = function ()
-  if canHeal('focus') then
-    return 'focus'
+  if canHeal('focus', true) and UnitGroupRolesAssigned('focus') == 'TANK' then
+    return 'focus', 'focustank'
   end
 
-  local tank = 'player'
+  local tanks = {}
   local highestUnit
+  local highest = 0
+  local playerTank = GetNumGroupMembers() > 0 and UnitGroupRolesAssigned('player') == 'TANK'
 
-  local lowest, highest = 100, 0
   for _, unit in pairs(ProbablyEngine.raid.roster) do
-    if canHeal(unit.unit) then
-      if unit.role == 'TANK' then
-        if unit.health and unit.health < lowest then
-          lowest = unit.health
-          tank = unit.unit
-        end
-      else
-        if unit.maxHealth and unit.maxHealth > highest then
-          highest = unit.maxHealth
-          highestUnit = unit.unit
-        end
+    if unit.role == 'TANK' and canHeal(unit.unit, true) then
+      if not playerTank or not UnitIsUnit('player', unit.unit) then
+        tanks[#tanks+1] = { unit.unit, unit.health }
       end
+    elseif canHeal(unit.unit) and unit.maxHealth and unit.maxHealth > highest then
+      highest = unit.maxHealth
+      highestUnit = unit.unit
     end
   end
 
-  if GetNumGroupMembers() > 0 and tank == 'player' then
-    tank = highestUnit
+  if #tanks > 0 then
+    local lowest
+    for _, tank in ipairs(tanks) do
+      if canHeal(tank[1]) and tank[2] and UnitInRange(tank[1]) then
+        if not lowest or tank[2] < lowest[2] then lowest = tank end
+      end
+    end
+
+    if lowest then
+      return lowest[1], 'tank'
+    else
+      return tanks[1][1], 'tank'
+    end
   end
 
-  return tank
+  if GetNumGroupMembers() > 0 then
+    if canHeal('focus') then
+      return 'focus', 'focus'
+    else
+      return highestUnit, 'highest'
+    end
+  end
+
+  return 'player', 'player'
 end
 
 ProbablyEngine.raid.check = function (fn)

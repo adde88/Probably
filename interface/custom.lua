@@ -1,3 +1,4 @@
+local L = ProbablyEngine.locale.get
 
 ProbablyEngine.rotation.list_custom = (function()
   local classId = select(3, UnitClass("player"))
@@ -17,7 +18,7 @@ ProbablyEngine.rotation.list_custom = (function()
   info = { }
   info.isTitle = true
   info.notCheckable = true
-  info.text = pelg('rtn_default')
+  info.text = L('rtn_default')
   UIDropDownMenu_AddButton(info)
 
   for specId,_ in pairs(ProbablyEngine.rotation.rotations) do
@@ -39,7 +40,7 @@ ProbablyEngine.rotation.list_custom = (function()
         if ProbablyEngine.rotation.buttons[specId] then
           ProbablyEngine.rotation.add_buttons()
         end
-        ProbablyEngine.print(pelg('rtn_switch') .. text)
+        ProbablyEngine.print(L('rtn_switch') .. text)
         ProbablyEngine.config.write('lastRotation_' .. mySpecId, '')
       end
       UIDropDownMenu_AddButton(info)
@@ -49,7 +50,7 @@ ProbablyEngine.rotation.list_custom = (function()
   info = { }
   info.isTitle = true
   info.notCheckable = true
-  info.text = pelg('rtn_custom')
+  info.text = L('rtn_custom')
   UIDropDownMenu_AddButton(info)
 
   if ProbablyEngine.rotation.custom[mySpecId] then
@@ -71,7 +72,7 @@ ProbablyEngine.rotation.list_custom = (function()
         if rotation.buttons then
           rotation.buttons()
         end
-        ProbablyEngine.print(pelg('rtn_switch') .. text)
+        ProbablyEngine.print(L('rtn_switch') .. text)
         ProbablyEngine.config.write('lastRotation_' .. mySpecId, ProbablyEngine.rotation.currentStringComp)
       end
       UIDropDownMenu_AddButton(info)
@@ -80,7 +81,7 @@ ProbablyEngine.rotation.list_custom = (function()
     info = { }
     info.isTitle = false
     info.notCheckable = true
-    info.text = pelg('rtn_nocustom')
+    info.text = L('rtn_nocustom')
     UIDropDownMenu_AddButton(info)
   end
 
@@ -107,7 +108,7 @@ ProbablyEngine.rotation.loadLastRotation = function ()
         if rotation.buttons then
           rotation.buttons()
         end
-        ProbablyEngine.print(pelg('rtn_switch') .. text)
+        ProbablyEngine.print(L('rtn_switch') .. text)
         break
       end
     end

@@ -1,6 +1,7 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
+local L = ProbablyEngine.locale.get
 
 ProbablyEngine.buttons = {
   frame = CreateFrame("Frame", "PE_Buttons", UIParent),
@@ -19,9 +20,9 @@ if MSQ then
   probablySkinGroup = MSQ:Group("ProbablyEngine", "Buttons")
 end
 -- ElvUI ?!
-local E, L, V, P, G
+local E, _L, V, P, G
 if IsAddOnLoaded("ElvUI") then
-  E, L, V, P, G = unpack(ElvUI)
+  E, _L, V, P, G = unpack(ElvUI)
   ElvSkin = E:GetModule('ActionBars')
   ProbablyEngine.buttons.padding = 3
   ProbablyEngine.buttons.size = 31
@@ -32,6 +33,7 @@ ProbablyEngine.buttons.frame:SetWidth(170)
 ProbablyEngine.buttons.frame:SetHeight(ProbablyEngine.buttons.size+5)
 ProbablyEngine.buttons.frame:SetMovable(true)
 ProbablyEngine.buttons.frame:SetFrameStrata('HIGH')
+ProbablyEngine.buttons.frame:SetAlpha(0.8)
 
 ProbablyEngine.buttons.frame:Hide()
 ProbablyEngine.buttons.buttonFrame:Hide()
@@ -41,7 +43,7 @@ ProbablyEngine.buttons.statusText:SetFont("Fonts\\ARIALN.TTF", 16)
 ProbablyEngine.buttons.statusText:SetShadowColor(0,0,0, 0.8)
 ProbablyEngine.buttons.statusText:SetShadowOffset(-1,-1)
 ProbablyEngine.buttons.statusText:SetPoint("CENTER", ProbablyEngine.buttons.frame)
-ProbablyEngine.buttons.statusText:SetText("|cffffffff"..pelg('drag_to_position').."|r")
+ProbablyEngine.buttons.statusText:SetText("|cffffffff"..L('drag_to_position').."|r")
 
 ProbablyEngine.buttons.frame.texture = ProbablyEngine.buttons.frame:CreateTexture()
 ProbablyEngine.buttons.frame.texture:SetAllPoints(ProbablyEngine.buttons.frame)
@@ -86,6 +88,7 @@ ProbablyEngine.buttons.create = function(name, icon, callback, tooltipl1, toolti
   , -3)
   button:SetWidth(ProbablyEngine.buttons.size)
   button:SetHeight(ProbablyEngine.buttons.size)
+  button:SetAlpha(1)
 
   -- theme it, Masque ?
   if probablySkinGroup then

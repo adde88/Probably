@@ -1,15 +1,13 @@
 -- ProbablyEngine Rotations
 -- Released under modified BSD, see attached LICENSE.
 
-local pelg = ProbablyEngine.locale.get
-local build = ProbablyEngine.build
-local stringFormat = string.format
+local L = ProbablyEngine.locale.get
 
 ProbablyEngine.listener.register("ADDON_LOADED", function(...)
 
   local addon = ...
 
-  if addon ~= ProbablyEngine.addonReal then return end
+  if string.lower(addon) ~= string.lower(ProbablyEngine.addonReal) then return end
 
   -- load all our config data
   ProbablyEngine.config.load(ProbablyEngine_ConfigData)

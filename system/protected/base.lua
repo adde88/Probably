@@ -4,13 +4,17 @@
 -- Function prototypes
 Distance = false
 UnitsAroundUnit = false
+FriendlyUnitsAroundUnit = false
 FaceUnit = false
 IterateObjects = false
 LineOfSight = false
+UseInvItem = UseInventoryItem
 
 ProbablyEngine.protected = {
 	unlocked = false
 }
+
+StopCast = SpellStopCasting
 
 function Cast(spell, target)
 end

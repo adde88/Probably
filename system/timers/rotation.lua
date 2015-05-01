@@ -2,11 +2,11 @@
 -- Released under modified BSD, see attached LICENSE.
 
 local GetSpellInfo = GetSpellInfo
+local L = ProbablyEngine.locale.get
 
 ProbablyEngine.current_spell = false
 
 ProbablyEngine.cycleTime = ProbablyEngine.cycleTime or 50
-
 
 -- faceroll
 
@@ -18,7 +18,7 @@ ProbablyEngine.faceroll.faceroll = function()
     elseif not ProbablyEngine.module.player.combat and ProbablyEngine.rotation.activeOOCRotation then
       spell, target = ProbablyEngine.parser.table(ProbablyEngine.rotation.activeOOCRotation, 'player')
     end
-    
+
     if spell then
       local spellIndex, spellBook = GetSpellBookIndex(spell)
       local spellID, name, icon
@@ -49,15 +49,15 @@ ProbablyEngine.cycle = function(skip_verify)
 
   local turbo = ProbablyEngine.config.read('pe_turbo', false)
   local cycle =
-    (UnitBuff('player', GetSpellName(165803)) or IsMounted() == false)
-    and UnitInVehicle("player") == false
+    (UnitBuff('player', GetSpellName(165803)) or UnitBuff('player', GetSpellName(164222)) or IsMounted() == false)
+    and UnitHasVehicleUI("player") == false
     and ProbablyEngine.module.player.combat
     and ProbablyEngine.config.read('button_states', 'MasterToggle', false)
     and ProbablyEngine.module.player.specID
     and (ProbablyEngine.protected.unlocked or IsMacClient())
 
   if cycle or skip_verify and ProbablyEngine.rotation.activeRotation then
-    
+
     local spell, target = false
 
     local queue = ProbablyEngine.module.queue.spellQueue
@@ -88,6 +88,7 @@ ProbablyEngine.cycle = function(skip_verify)
 
       ProbablyEngine.buttons.icon('MasterToggle', icon)
       ProbablyEngine.current_spell = name
+      ProbablyEngine.dataBroker.spell.text = ProbablyEngine.current_spell
 
       if target == "ground" then
         CastGround(name, 'target')
@@ -116,13 +117,13 @@ ProbablyEngine.cycle = function(skip_verify)
       end
 
       if target ~= "ground" and UnitExists(target or 'target') then
-        ProbablyEngine.debug.print("Casting |T"..icon..":10:10|t ".. name .. " on ( " .. UnitName(target or 'target') .. " )", 'spell_cast')
+        ProbablyEngine.debug.print(L('casting') .. " |T"..icon..":10:10|t ".. name .. L('on') .. " ( " .. UnitName(target or 'target') .. " )", 'spell_cast')
       else
-        ProbablyEngine.debug.print("Casting |T"..icon..":10:10|t ".. name .. " on the ground!", 'spell_cast')
+        ProbablyEngine.debug.print(L('casting') .. " |T"..icon..":10:10|t ".. name .. L('on_the_ground'), 'spell_cast')
       end
 
     end
-    
+
   end
 end
 
@@ -132,8 +133,8 @@ end, ProbablyEngine.cycleTime)
 
 ProbablyEngine.ooc_cycle = function()
   local cycle =
-    (UnitBuff('player', GetSpellName(165803)) or IsMounted() == false)
-    and UnitInVehicle("player") == false
+    (UnitBuff('player', GetSpellName(165803)) or UnitBuff('player', GetSpellName(164222)) or IsMounted() == false)
+    and UnitHasVehicleUI("player") == false
     and not ProbablyEngine.module.player.combat
     and ProbablyEngine.config.read('button_states', 'MasterToggle', false)
     and ProbablyEngine.module.player.specID ~= 0
@@ -158,6 +159,7 @@ ProbablyEngine.ooc_cycle = function()
 
       ProbablyEngine.buttons.icon('MasterToggle', icon)
       ProbablyEngine.current_spell = name
+      ProbablyEngine.dataBroker.spell.text = ProbablyEngine.current_spell
 
       if target == "ground" then
         CastGround(name, 'target')
@@ -179,9 +181,9 @@ ProbablyEngine.ooc_cycle = function()
       end
 
       if target ~= "ground" and UnitExists(target or 'target') then
-        ProbablyEngine.debug.print("Casting |T"..icon..":10:10|t ".. name .. " on ( " .. UnitName(target or 'target') .. " )", 'spell_cast')
+        ProbablyEngine.debug.print(L('casting') .. " |T"..icon..":10:10|t ".. name .. L('on') .. " ( " .. UnitName(target or 'target') .. " )", 'spell_cast')
       else
-        ProbablyEngine.debug.print("Casting |T"..icon..":10:10|t ".. name .. " on the ground!", 'spell_cast')
+        ProbablyEngine.debug.print(L('casting') .. " |T"..icon..":10:10|t ".. name .. L('on_the_ground'), 'spell_cast')
       end
 
       --soon... soon
@@ -200,6 +202,7 @@ ProbablyEngine.timer.register("detectUnlock", function()
   if ProbablyEngine.config.read('button_states', 'MasterToggle', false) then
     ProbablyEngine.protected.FireHack()
     ProbablyEngine.protected.OffSpring()
+    ProbablyEngine.protected.WoWSX()
     ProbablyEngine.protected.Generic()
   end
 end, 1000)

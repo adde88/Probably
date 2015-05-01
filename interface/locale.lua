@@ -37,5 +37,3 @@ function locale.set(key, text)
 
   locales[writeTo][key] = text
 end
-
-pelg = locale.get

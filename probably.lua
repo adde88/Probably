@@ -5,7 +5,7 @@ ProbablyEngine = {
   addonName = "Probably",
   addonReal = "Probably",
   addonColor = "EE2200",
-  version = "6.0.3r11"
+  version = "6.1r16"
 }
 
 function ProbablyEngine.print(message)
